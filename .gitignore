@@ -1,0 +1,7 @@
+*.pyc
+data*/
+*.log
+.vscode
+__pycache__
+url.list
+data.zip
