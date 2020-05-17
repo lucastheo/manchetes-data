@@ -2,8 +2,8 @@ import zipfile
 import json
 import os
 import datetime
-FILE_URL_TO_ID = './data/url_to_id'
-PATH_BASE = './data/data_base/'
+FILE_URL_TO_ID = '../data/html/url_to_id'
+PATH_BASE = '../data/html/data_base/'
 FILE_BASE_ID_URL = '/info'
 
 
@@ -17,7 +17,7 @@ class DataBaseControl:
         id_url = self.__find_url_id_or_include()
         if date == "":
             date_now = datetime.datetime.now()
-            date_str = f'{date_now.year}-{date_now.month}-{date_now.day}'
+            date_str = f'{date_now.year}-{date_now.month}-{date_now.day}-{date_now.hour}'
         else:
             date_str = date
         try:

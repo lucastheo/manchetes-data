@@ -2,7 +2,7 @@
 import driver_controler
 import data_base_control
 
-FILE_URL = "./url.list"
+FILE_URL = "../config/url.list"
 
 if __name__ == "__main__":
     objDBC = data_base_control.DataBaseControl()
