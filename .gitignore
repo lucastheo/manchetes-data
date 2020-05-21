@@ -1,7 +1,7 @@
 *.pyc
-data*/
+data/*
 *.log
 .vscode
 __pycache__
-url.list
+url.list*
 data.zip
