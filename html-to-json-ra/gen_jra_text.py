@@ -69,11 +69,11 @@ if __name__ == "__main__":
         
         dict_date = objDBC.get_dict_date_page_of_url( url )
         for date in dict_date:
-            
-            if date not in dict_json[ url ].keys():
+
+            if date not in dict_json[ url ].keys():               
                 html = objDBC.get_page_of_date_page_and_url( url , date )
                 if len( html ) > 0:
-                    #print("[ADD  ] jra" + url + "-" + date)
+                    print("[ADD  ] jra" + url + "-" + date)
                     s = BeautifulSoup( html , features="html5lib" )
                     
                     list_str = list()
@@ -99,6 +99,7 @@ if __name__ == "__main__":
         save_json_new( dict_json_new )
         print("[SAVE ] salvou " + str( flag ) + " novos elementos")
     else:
+        print('[NSAVE] não salvou novo json' )
         save_json_new(dict())
 
 
