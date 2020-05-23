@@ -113,7 +113,7 @@ if __name__ == "__main__":
         
     elif sys.argv[ 1 ] == "--data":
 
-        if len( sys.argv ) >= 2:
+        if len( sys.argv ) > 2:
             if sys.argv[ 2 ] == "--new":
                 dict_json = json_load_new()    
             else:
@@ -130,7 +130,7 @@ if __name__ == "__main__":
         print("[ADD  ] Most Cited, generated all urls by  data " + str( len( dict_all_url_by_datas ) ) )
     elif sys.argv[ 1 ] == "--url":
 
-        if len( sys.argv ) >= 2:
+        if len( sys.argv ) > 2:
             if sys.argv[ 2 ] == "--new":
                 dict_json = json_load_new()    
             else:

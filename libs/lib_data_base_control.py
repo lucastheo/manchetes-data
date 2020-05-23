@@ -58,17 +58,19 @@ class DataBaseControl:
     
     def get_dict_date_page_of_url( self , url ):
         self.url = url
-        id_url = self.__find_date_page_or_include()
+        id_url = self.__find_url()
         try:
             js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
             s = js_file.read()
+            js_file.close()
         except:
+            print('[ERROR] Não achou o arquivo, get_dict_date_page_of_url', PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
             s = ''
         if s.startswith('{') and s.endswith('}'):
             js = json.loads( s )
         else:
             js = dict()
-        js_file.close()
+        
         return js
     
     def get_page_of_date_page_and_url( self , url , date_page ):
@@ -82,9 +84,9 @@ class DataBaseControl:
             s = js_file.read()
             js_file.close()
         except:
+            print('[ERROR] Não achou o arquivo, get_page_of_date_page_and_url')
             s = ''
         return s
-
 
     def __find_date_page_or_include( self ):
         id_url = self.__find_url_id_or_include()
@@ -113,7 +115,7 @@ class DataBaseControl:
     def __find_url_id_or_include( self ):
         if self.url_to_id_dict == None:
             self.url_to_id_dict = self.__read_url_id_or_include()
-        
+
         if self.url in self.url_to_id_dict.keys():
             return self.url_to_id_dict[ self.url ]
         
