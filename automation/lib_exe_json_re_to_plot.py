@@ -5,7 +5,7 @@ import lib_json_down_file
 from lib_url_to_path import url_to_path
 
 PATH_DOWN_HTML = '../json-re-to-plot/'
-PYTHON = 'python '
+PYTHON = 'python3 '
 
 def execute( reexecute = False ):
     gen_plot_most_cited(reexecute)

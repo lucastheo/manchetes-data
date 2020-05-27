@@ -1,7 +1,7 @@
 import os
 
 PATH_DOWN_HTML = '../html-to-json-ra/'
-PYTHON = 'python '
+PYTHON = 'python3 '
 def execute():
     gen_jra_text()
 

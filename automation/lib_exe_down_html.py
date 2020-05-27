@@ -1,7 +1,7 @@
 import os
 
 PATH_DOWN_HTML = '../down_html/'
-PYTHON = 'python '
+PYTHON = 'python3 '
 def execute():
     dow_pages_main()
 
