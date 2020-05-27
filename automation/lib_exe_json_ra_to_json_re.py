@@ -1,11 +1,13 @@
 import os
 PATH_DOWN_HTML = '../json-ra-to-json-re/'
-PYTHON = 'python '
+PYTHON = 'python3 '
 def execute(reexecute = False):
     if reexecute == False:
         gen_jre_most_cited_new()
+        gen_jre_graph_node_new()
     else:
         gen_jre_most_cited()
+        gen_jre_graph_node()
 
 def gen_jre_most_cited_new():
     f = 'gen_jre_most_cited.py'
@@ -23,4 +25,20 @@ def gen_jre_most_cited():
     s += PYTHON + f + ' &\n'
     s += PYTHON + f + ' --data &\n'
     s += PYTHON + f + ' --url '
+    os.system( s )
+
+def gen_jre_graph_node():
+    f = 'gen_jre_graph_node.py'
+    s = 'cd ' + PATH_DOWN_HTML + ';'
+    s += PYTHON + f + ' --edge & \n'
+    s += PYTHON + f + ' --name-name & \n'
+    s += PYTHON + f + ' --name-token \n'
+    os.system( s )
+    
+def gen_jre_graph_node_new():
+    f = 'gen_jre_graph_node.py'
+    s = 'cd ' + PATH_DOWN_HTML + ';'
+    s += PYTHON + f + ' --new --edge & \n'
+    s += PYTHON + f + ' --new --name-name & \n'
+    s += PYTHON + f + ' --new --name-token \n'
     os.system( s )
