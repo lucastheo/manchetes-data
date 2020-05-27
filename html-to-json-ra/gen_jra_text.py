@@ -79,19 +79,22 @@ if __name__ == "__main__":
                     list_str = list()
                     for line in s.strings:
                         
-                        var0 = re.fullmatch(r"[\n ]*" , line )
-                        var1 = "{" in line or "}" in line
-                        var3 = re.match(r"\([^\)]\(", line )
-                        var4 = re.match('var [^;];' , line )
-                        var = not( var0 or var1 or var3 or var4  )
+                        if len( line ) < 30000:
+                            var0 = re.fullmatch(r"[\n ]*" , line )
+                            var1 = "{" in line or "}" in line
+                            var3 = re.match(r"\([^\)]\(", line )
+                            var4 = re.match('var [^;];' , line )
+                            var = not( var0 or var1 or var3 or var4  )
 
-                        if var :
-                            s = decode_code_problens_solver( line )
-                            s = sanitizer( s )
-                            list_str.append( s )
+                            if var :
+                                s = decode_code_problens_solver( line )
+                                s = sanitizer( s )
+                                list_str.append( s )
+                        else:
+                            print("[ERROR] Linha descartada, muito grande, " , line[:100])
                     dict_json[ url ][ date ] = list_str
                     dict_json_new[ url ][ date ] = list_str
-                    
+                
                     flag += 1
     
     if flag > 0:
