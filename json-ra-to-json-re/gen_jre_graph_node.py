@@ -3,9 +3,7 @@ sys.path.append('../libs')
 import lib_json_down_file 
 import json
 import lib_token_str
-from lib_json_file_graph import *
-
-
+import lib_json_graph_file
 
 def get_nodes_update( dict_json:dict , dict_nodes = dict() ):
     for url in dict_json.keys():
@@ -44,7 +42,7 @@ def get_edges_names_token_update( dict_json:dict , dict_edges = dict() ):
                 list_names = lib_token_str.get_names( line )
                 list_token = lib_token_str.get_names( line )
                 for names in list_names:
-                    names = names.lower()
+                    #names = names.lower()
                     if len( names ) != 0:    
                         for token in list_token:
                             token = token.lower()
@@ -58,56 +56,56 @@ def get_edges_names_token_update( dict_json:dict , dict_edges = dict() ):
 def __update_dict_base( dict_var:dict , url:str, data:str , token:str  ):
     if token not in dict_var.keys():
         dict_var[ token ] = dict()
-        dict_var[ token ][ KEY_FREQUENCY ] = 0
-        dict_var[ token ][ KEY_FREQUENCY_DATA ] = dict()
-        dict_var[ token ][ KEY_FREQUENCY_URL ] = dict()
-        dict_var[ token ][ KEY_FREQUENCY_URL_DATA ] = dict()
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY ] = 0
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_DATA ] = dict()
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL ] = dict()
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ] = dict()
         
-    if data not in dict_var[ token ][ KEY_FREQUENCY_DATA ].keys():
-        dict_var[ token ][ KEY_FREQUENCY_DATA ][ data ] = 0
+    if data not in dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_DATA ].keys():
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_DATA ][ data ] = 0
     
-    if url not in dict_var[ token ][ KEY_FREQUENCY_URL ].keys():
-        dict_var[ token ][ KEY_FREQUENCY_URL ][ url ] = 0
+    if url not in dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL ].keys():
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL ][ url ] = 0
 
-    if url not in dict_var[ token ][ KEY_FREQUENCY_URL_DATA ].keys():
-        dict_var[ token ][ KEY_FREQUENCY_URL_DATA ][ url ] = dict()
+    if url not in dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ].keys():
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ][ url ] = dict()
 
-    if data not in dict_var[ token ][ KEY_FREQUENCY_URL_DATA ][ url ].keys():
-        dict_var[ token ][ KEY_FREQUENCY_URL_DATA ][ url ][ data ] = 0
+    if data not in dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ][ url ].keys():
+        dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ][ url ][ data ] = 0
     
-    dict_var[ token ][ KEY_FREQUENCY ] += 1
-    dict_var[ token ][ KEY_FREQUENCY_DATA ][ data ] += 1 
-    dict_var[ token ][ KEY_FREQUENCY_URL ][ url ] += 1
-    dict_var[ token ][ KEY_FREQUENCY_URL_DATA ][ url ][ data ] += 1
+    dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY ] += 1
+    dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_DATA ][ data ] += 1 
+    dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL ][ url ] += 1
+    dict_var[ token ][ lib_json_graph_file.KEY_FREQUENCY_URL_DATA ][ url ][ data ] += 1
 
 if __name__ == "__main__":
     
     
-    if case_new() == False:
-        c_type = case_type()
+    if lib_json_graph_file.case_new() == False:
+        c_type = lib_json_graph_file.case_type()
         print("[INIT ] Inicio grafo novo" , c_type)
-        dict_json = load_json_raw_text()
+        dict_json = lib_json_graph_file.load_json_raw_text()
         if c_type  == 'edge':
             dict_nodes = get_nodes_update( dict_json )
-            save_json_node_graph( dict_nodes )
+            lib_json_graph_file.save_json_node_graph( dict_nodes )
         if c_type == 'name-name':
             dict_nodes = get_edges_names_update( dict_json )
-            save_json_edge_names_graph( dict_nodes )
+            lib_json_graph_file.save_json_edge_names_graph( dict_nodes )
         if c_type == 'name-token':
             dict_nodes = get_edges_names_token_update( dict_json )
-            save_json_edge_names_token_graph( dict_nodes )
+            lib_json_graph_file.save_json_edge_names_token_graph( dict_nodes )
         print("[INIT ] Fim grafo novo" , c_type)
     else:
-        c_type = case_type()
+        c_type = lib_json_graph_file.case_type()
         print("[INIT ] Inicio grafo" , c_type)
-        dict_json = load_json_raw_text_new()
+        dict_json = lib_json_graph_file.load_json_raw_text_new()
         if c_type  == 'edge':
-            dict_nodes = get_nodes_update( dict_json , load_json_node_graph() )
-            save_json_node_graph( dict_nodes )
+            dict_nodes = get_nodes_update( dict_json , lib_json_graph_file.load_json_node_graph() )
+            lib_json_graph_file.save_json_node_graph( dict_nodes )
         if c_type == 'name-name':
-            dict_nodes = get_edges_names_update( dict_json , load_json_edge_names_graph() )
-            save_json_edge_names_graph( dict_nodes )
+            dict_nodes = get_edges_names_update( dict_json , lib_json_graph_file.load_json_edge_names_graph() )
+            lib_json_graph_file.save_json_edge_names_graph( dict_nodes )
         if c_type == 'name-token':
-            dict_nodes = get_edges_names_token_update( dict_json , load_json_edge_names_token_graph() )
-            save_json_edge_names_token_graph( dict_nodes )
+            dict_nodes = get_edges_names_token_update( dict_json , lib_json_graph_file.load_json_edge_names_token_graph() )
+            lib_json_graph_file.save_json_edge_names_token_graph( dict_nodes )
         print("[INIT ] Fim grafo" , c_type)
