@@ -48,10 +48,23 @@ def decode_code_problens_solver( line ):
     line = line.replace('\u00f4', 'o') 
     return line
 
-def sanitizer( line ):
+def sanitizer( line:str )->str:
     line = line.replace( "\n" , " ") 
     line = re.sub(r'[ ]{2,}', " " , line )
     return line
+
+def sanitizer_soup( s:BeautifulSoup )->None:
+    # Clear every script tag
+    for tag in s.find_all('script'):
+        tag.clear()
+
+    # Clear every style tag
+    for tag in s.find_all('style'):
+        tag.clear()
+
+    # Remove style attributes (if needed)
+    for tag in s.find_all(style=True):
+        del tag['style']
 
 if __name__ == "__main__":
     objDBC = lib_data_base_control.DataBaseControl()
@@ -75,11 +88,12 @@ if __name__ == "__main__":
                 if len( html ) > 0:
                     print("[ADD  ] jra" + url + "-" + date)
                     s = BeautifulSoup( html , features="html5lib" )
-                    
+                    sanitizer_soup( s )                
                     list_str = list()
+
                     for line in s.strings:
                         
-                        if len( line ) < 30000:
+                        if len( line ) < 100000:
                             var0 = re.fullmatch(r"[\n ]*" , line )
                             var1 = "{" in line or "}" in line
                             var3 = re.match(r"\([^\)]\(", line )
