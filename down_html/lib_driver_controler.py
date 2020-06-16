@@ -2,20 +2,23 @@
 #   fica responsavel em fazer o download da página
 #
 from selenium import webdriver
-
+import requests 
 
 class DriverControler:
+
+    HEADERS = {"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36",
+                "Accept" : "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+                 }
     def __init__( self ):
         self.driver = None
-    
+
     def get( self, url ):
-        if self.driver == None:
-            opt_fire = webdriver.FirefoxOptions()
-            self.driver = webdriver.Firefox( firefox_options= opt_fire )
-        self.driver.get( url )
-        return self.driver.page_source
+        var = requests.get( url , headers= self.HEADERS , )
+        return str( var.text )
+    
     
     def exit( self ):
-        if self.driver != None:
-            self.driver.close()
+        pass
+        #if self.driver != None:
+        #    self.driver.close()
     

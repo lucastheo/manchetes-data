@@ -7,6 +7,7 @@ def get_names( var:str )->list:
     for token in get_tokens( var ):
         if is_uppercase( token ):
             list_valid_token.append( token )
+
     return list_valid_token
 
 def get_names_list( list_var: list , set_valid_token = None )->set:
@@ -21,7 +22,7 @@ def get_names_list( list_var: list , set_valid_token = None )->set:
 
 def get_tokens( var:str ):
     list_var = list()
-    for token in re.split( '[\n \t:,.]+', var ):
+    for token in re.split( '[\n \t:,.-?!]+', var ):
         flag = True
         for forbidden in ["_", "$"]:
             if forbidden in token:
