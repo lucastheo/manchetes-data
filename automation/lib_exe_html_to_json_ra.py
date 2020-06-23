@@ -1,5 +1,5 @@
+import subprocess
 import os
-
 PATH_DOWN_HTML = '../html-to-json-ra/'
 PYTHON = 'python3 '
 def execute():
@@ -11,4 +11,6 @@ def gen_jra_text():
     s = 'cd ' + PATH_DOWN_HTML + ';'
     s += PYTHON + PATH_DOWN_HTML + f
 
-    os.system( s )
+    pross = subprocess.Popen( s , shell = True)
+    pross.wait()
+    

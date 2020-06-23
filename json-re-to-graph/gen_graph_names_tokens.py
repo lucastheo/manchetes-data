@@ -9,15 +9,12 @@ if __name__ == "__main__":
     labels = set()
 
     i = 0
-    for token in json_graph:
+    for token in json_graph.keys():
         i += 1
-        if token not in name:
-            objDG.add_node( name , id = i , type = 'token')
-        else:
-            objDG.add_node( name , id = i , type = 'token-name')
+        objDG.add_node( token , id = i , type = 'token')
 
         for name in json_graph[ token ]:
-            if name not in token:
+            if name not in json_graph.keys():
                 i += 1
                 objDG.add_node( name , id = i , type = 'name')
     

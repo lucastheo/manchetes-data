@@ -1,6 +1,6 @@
-import os
-
-PATH_DOWN_HTML = '../down_html/'
+import subprocess
+import os 
+PATH_DOWN_HTML = os.getcwd() + '/down_html/'
 PYTHON = 'python3 '
 def execute():
     dow_pages_main()
@@ -11,4 +11,5 @@ def dow_pages_main():
     s = 'cd ' + PATH_DOWN_HTML + ';'
     s += PYTHON + PATH_DOWN_HTML + f
 
-    os.system( s )
+    pross = subprocess.Popen("ls")
+    pross.wait()

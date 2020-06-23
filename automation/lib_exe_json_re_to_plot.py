@@ -1,4 +1,4 @@
-import os
+import subprocess
 import sys
 sys.path.append('../libs')
 import lib_json_down_file
@@ -31,4 +31,5 @@ def gen_plot_most_cited( reexecute = False):
         s += PYTHON + f + ' --data ' + data + ' &\n'
     
     s = s.rstrip('&&\n')
-    os.system( s )
+    pross = subprocess.Popen( s , shell = True )
+    pross.wait()

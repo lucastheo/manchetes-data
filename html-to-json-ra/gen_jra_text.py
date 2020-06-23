@@ -86,8 +86,8 @@ if __name__ == "__main__":
             if date not in dict_json[ url ].keys():               
                 html = objDBC.get_page_of_date_page_and_url( url , date )
                 if len( html ) > 0:
-                    print("[ADD  ] jra" + url + "-" + date)
-                    s = BeautifulSoup( html , features="html5lib" )
+                    print("[ADD  ] jra " + url + "-" + date)
+                    s = BeautifulSoup( html , features="lxml" )
                     sanitizer_soup( s )                
                     list_str = list()
 
