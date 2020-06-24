@@ -118,6 +118,7 @@ if __name__ == "__main__":
     else:
         print('[NSAVE] não salvou novo json' )
         save_json_new(dict())
+    objDBC.exit()
 
 
 
