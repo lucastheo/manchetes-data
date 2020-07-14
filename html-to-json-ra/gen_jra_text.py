@@ -96,7 +96,8 @@ if __name__ == "__main__":
         print("[SAVE ] salvou " + str( flag ) + " novos elementos")
     else:
         print('[NSAVE] não salvou novo json' )
-        lib_json_down_file.save_json_new(dict())
+        save_json_new(dict())
+    objDBC.exit()
 
 
 

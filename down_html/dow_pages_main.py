@@ -27,3 +27,4 @@ if __name__ == "__main__":
                 #except Exception as e:
                 #    print('[URL  ]','Falha em conseguir o retorno da página ou em salvar os dados', e)
     objDC.exit()
+    objDBC.exit()
