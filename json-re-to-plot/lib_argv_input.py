@@ -1,7 +1,7 @@
 import sys
 def url(): 
     if len( sys.argv ) > 1:
-        list_accept = ['--url']
+        list_accept = ['--url' , '--url-data']
         for i in range( 1 , len( sys.argv) -1 ):
             if sys.argv[ i ] in list_accept:
                 return sys.argv[ i + 1]
@@ -9,7 +9,7 @@ def url():
 
 def data():
     if len( sys.argv ) > 1:
-        list_accept = ['--data']
+        list_accept = ['--data' , '--url-data']
         for i in range( 1 , len( sys.argv) -1 ):
             if sys.argv[ i ] in list_accept:
                 return sys.argv[ i + 1]

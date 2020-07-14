@@ -1,32 +1,11 @@
 import sys
 sys.path.append("../libs")
 import lib_data_base_control
+import lib_json_down_file
 import sys
 import json
 import re
 from bs4 import BeautifulSoup
-
-FILE_JSON = '../data/json_raw/out-text.json'
-FILE_JSON_NEW = '../data/json_raw/out-text-new.json'
-
-def load_json():
-    try:
-        with open( FILE_JSON  , 'r') as arq:
-            objJS = json.load( arq )
-            return objJS
-    except:
-        with open( FILE_JSON , 'w') as arq:
-            arq.write('{}')
-    
-    return dict()
-     
-def save_json( html ):
-    with open( FILE_JSON , 'w' ) as arq:
-        json.dump( html , arq , indent= 4)
-
-def save_json_new( html ):
-    with open( FILE_JSON_NEW , 'w' ) as arq:
-        json.dump( html , arq , indent= 4)
 
 def decode_code_problens_solver( line ):
     line = line.replace('\u00e1', 'a')
@@ -70,7 +49,7 @@ if __name__ == "__main__":
     objDBC = lib_data_base_control.DataBaseControl()
 
     dict_url = objDBC.get_dict_id_url()
-    dict_json = load_json()
+    dict_json = lib_json_down_file.load_json()
     dict_json_new = dict()
     flag = 0
 
@@ -112,12 +91,12 @@ if __name__ == "__main__":
                     flag += 1
     
     if flag > 0:
-        save_json( dict_json )
-        save_json_new( dict_json_new )
+        lib_json_down_file.save_json( dict_json )
+        lib_json_down_file.save_json_new( dict_json_new )
         print("[SAVE ] salvou " + str( flag ) + " novos elementos")
     else:
         print('[NSAVE] não salvou novo json' )
-        save_json_new(dict())
+        lib_json_down_file.save_json_new(dict())
 
 
 

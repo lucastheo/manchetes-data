@@ -5,3 +5,4 @@ data/*
 __pycache__
 url.list*
 data.zip
+data/json_refined

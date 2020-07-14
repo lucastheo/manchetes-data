@@ -2,14 +2,19 @@ import zipfile
 import json
 import os
 import datetime
-FILE_URL_TO_ID = '../data/htmls/url_to_id'
-PATH_BASE = '../data/htmls/data_base/'
+from zipfile import ZipFile 
+FILE_URL_TO_ID = 'htmls/url_to_id'
+PATH_BASE = 'htmls/data_base/'
+PATH_ZIP_FILE = "../data/data.zip"
 FILE_BASE_ID_URL = '/info'
+PATH_ZIP_HTML_BASIC = "info"
 
 
 class DataBaseControl:
     def __init__( self ):
         self.url_to_id_dict = None
+        self.zipfile = ZipFile(PATH_ZIP_FILE , "a" , compression=zipfile.ZIP_LZMA , compresslevel= 9 )
+        self.flagPrimeiraLeitura = True
 
     def contem_no_sistema( self , url , date = ""):
     
@@ -20,16 +25,16 @@ class DataBaseControl:
             date_str = f'{date_now.year}-{date_now.month}-{date_now.day}-{date_now.hour}'
         else:
             date_str = date
-        try:
-            js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
-            s = js_file.read()
-            js_file.close()
-        except Exception as e:
-            os.mkdir( PATH_BASE + str( id_url ) )
-            js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'w')
-            js_file.write('{}')
-            js_file.close()
-            s =''
+        #try:
+        js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
+        s = js_file.read().decode()
+        js_file.close()
+        #except Exception as e:
+        #    #os.mkdir( PATH_BASE + str( id_url ) )
+        #    js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'w').decode("utf-8")
+        #    js_file.write('{}')
+        #    js_file.close()
+        #    s =''
         
         if s.startswith('{') and s.endswith('}'):
             js = json.loads( s )
@@ -47,9 +52,9 @@ class DataBaseControl:
         url_id = self.__find_url_id_or_include()
         data_id = self.__find_date_page_or_include()
  
-        arq = open( PATH_BASE + str( url_id ) + '/' + str( data_id ) , 'w')
-        arq.write( html )
-        arq.close()
+        objZF = zipfile.ZipFile(PATH_BASE + str( url_id ) + '/' + str( data_id ) , "w" , compression=zipfile.ZIP_LZMA)
+        objZF.writestr(PATH_ZIP_HTML_BASIC , html )
+        objZF.close()
 
     def get_dict_id_url( self ):
         if self.url_to_id_dict == None:
@@ -59,13 +64,12 @@ class DataBaseControl:
     def get_dict_date_page_of_url( self , url ):
         self.url = url
         id_url = self.__find_url()
-        try:
-            js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
-            s = js_file.read()
-            js_file.close()
-        except:
-            print('[ERROR] Não achou o arquivo, get_dict_date_page_of_url', PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
-            s = ''
+        
+        js_file = self.zipfile.read( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
+        s = js_file.decode()
+        #except:
+        #    print('[ERROR] Não achou o arquivo, get_dict_date_page_of_url', PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
+        #    s = ''
         if s.startswith('{') and s.endswith('}'):
             js = json.loads( s )
         else:
@@ -80,11 +84,11 @@ class DataBaseControl:
         if date_page not in dict_date_pate.keys():
             return ""
         try:
-            js_file = open( PATH_BASE + str( dict_id_url[ url ] ) + '/' + str( dict_date_pate[ date_page ]) , 'r')
-            s = js_file.read()
-            js_file.close()
-        except:
-            print('[ERROR] Não achou o arquivo, get_page_of_date_page_and_url')
+            objZF = zipfile.ZipFile( PATH_BASE + str( dict_id_url[ url ] ) + '/' + str( dict_date_pate[ date_page ]) , "r" , compression=zipfile.ZIP_LZMA)
+            s = objZF.read(PATH_ZIP_HTML_BASIC ).decode()
+            objZF.close()
+        except Exception as e:
+            print('[ERROR] Não achou o arquivo, get_page_of_date_page_and_url' , e )
             s = ''
         return s
 
@@ -93,8 +97,8 @@ class DataBaseControl:
         date_now = datetime.datetime.now()
         date_now_str = f'{date_now.year}-{date_now.month}-{date_now.day}-{date_now.hour}'
 
-        js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
-        s = js_file.read()
+        js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
+        s = js_file.read().decode()
         if s.startswith('{') and s.endswith('}'):
             js = json.loads( s )
         else:
@@ -105,10 +109,8 @@ class DataBaseControl:
             return js[ date_now_str ]
         
         js[ date_now_str ] = max_valor( js )
-
-        js_file = open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'w')
-        json.dump( js , js_file , indent=4 )
-        js_file.close()
+        js_out = json.dumps(js , indent=4 )
+        self.zipfile.writestr( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , js_out  )
 
         return js[ date_now_str ]
 
@@ -133,31 +135,38 @@ class DataBaseControl:
         
         max_v = max_valor( j )
         j[self.url] = max_v
-        f = open( FILE_URL_TO_ID , 'w')
-        json.dump( j , f , indent=4 )
-        f.close()
-
-        path_id_url = PATH_BASE + str( max_v )
-        os.makedirs( path_id_url , exist_ok=True )
+        j_out = json.dumps( j , indent=4 )
+        self.zipfile.writestr( FILE_URL_TO_ID , j_out)
         
-        arq = open( path_id_url + FILE_BASE_ID_URL, 'w' )
-        arq.write('')
-        arq.close()
+        path_id_url = PATH_BASE + str( max_v )
+        #os.makedirs( path_id_url , exist_ok=True )
+        
+        self.zipfile.writestr( path_id_url + FILE_BASE_ID_URL, '' )
         return j
 
     def __read_url_id_or_include( self ):
-        f = open( FILE_URL_TO_ID , 'r')
-        s = f.read()
+        try:
+            f = self.zipfile.open( FILE_URL_TO_ID , 'r')
+            s = f.read()
+        except:
+            print("Criando arquivo de id")
+            self.flagPrimeiraLeitura = False
+            self.zipfile.writestr( FILE_URL_TO_ID , "{}")
+            s = "{}"
+
         if len( s.strip() ) > 0:
             j = json.loads( s )
         else:
             j = dict()
-        f.close()   
+          
         self.url_to_id_dict = j
         return j
 
     def set_url( self , url ):
         self.url = url
+
+    def exit(self):
+        self.zipfile.close()
 
 def max_valor( var ):
     m = 0

@@ -82,18 +82,3 @@ def save_json_edge_names_token_graph( dict_json:dict ):
         json.dump( dict_json , arq , indent= 4 )
         arq.close()    
 
-def load_json_raw_text():
-    with open( PATH_JSON_RA_TEXT , 'r') as arq:
-        dict_json = json.load( arq )
-        arq.close()
-    if dict_json == None:
-        dict_json = dict()
-    return dict_json
-
-def load_json_raw_text_new():
-    with open( PATH_JSON_RA_TEXT , 'r') as arq:
-        dict_json = json.load( arq )
-        arq.close()
-    if dict_json == None:
-        dict_json = dict()
-    return dict_json

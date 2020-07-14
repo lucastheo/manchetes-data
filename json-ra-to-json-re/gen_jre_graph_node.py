@@ -84,7 +84,7 @@ if __name__ == "__main__":
     if lib_json_graph_file.case_new() == False:
         c_type = lib_json_graph_file.case_type()
         print("[INIT ] Inicio grafo novo" , c_type)
-        dict_json = lib_json_graph_file.load_json_raw_text()
+        dict_json = lib_json_down_file.load_all()
         if c_type  == 'edge':
             dict_nodes = get_nodes_update( dict_json )
             lib_json_graph_file.save_json_node_graph( dict_nodes )
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     else:
         c_type = lib_json_graph_file.case_type()
         print("[INIT ] Inicio grafo" , c_type)
-        dict_json = lib_json_graph_file.load_json_raw_text_new()
+        dict_json = lib_json_down_file.load_new() 
         if c_type  == 'edge':
             dict_nodes = get_nodes_update( dict_json , lib_json_graph_file.load_json_node_graph() )
             lib_json_graph_file.save_json_node_graph( dict_nodes )
