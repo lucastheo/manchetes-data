@@ -15,7 +15,8 @@ def gen_jre_most_cited_new():
     s = 'cd ' + PATH_DOWN_HTML + ';'
     s += PYTHON + f + ' &\n'
     s += PYTHON + f + ' --data --new &\n'
-    s += PYTHON + f + ' --url --new'
+    s += PYTHON + f + ' --url --new &\n'
+    s += PYTHON + f + ' --url-data --new'
     pross = subprocess.Popen( s , shell = True )
     pross.wait()
 
@@ -25,7 +26,8 @@ def gen_jre_most_cited():
     s = 'cd ' + PATH_DOWN_HTML + ';'
     s += PYTHON + f + ' &\n'
     s += PYTHON + f + ' --data &\n'
-    s += PYTHON + f + ' --url '
+    s += PYTHON + f + ' --url & \n'
+    s += PYTHON + f + ' --url-data'
     pross = subprocess.Popen( s , shell = True)
     pross.wait()
 
