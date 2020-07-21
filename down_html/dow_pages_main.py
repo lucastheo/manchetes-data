@@ -25,6 +25,6 @@ if __name__ == "__main__":
                     objDBC.add_code( line , html )
                     print('[URL  ]',"Download Ok")
                 except Exception as e:
-                    print('[URL  ]','Falha em conseguir o retorno da página ou em salvar os dados', e)
+                    print('[URL  ]','Falha em conseguir o retorno da página ou em salvar os dados', e.with_traceback )
     objDC.exit()
     objDBC.exit()
