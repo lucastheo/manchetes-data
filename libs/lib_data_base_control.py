@@ -3,63 +3,63 @@ import json
 import os
 import datetime
 from zipfile import ZipFile 
-FILE_URL_TO_ID = 'htmls/url_to_id'
+FILE_URL_TO_ID = '../htmls/url_to_id'
 PATH_BASE = 'htmls/data_base/'
 PATH_ZIP_FILE = "../data/data.zip"
 FILE_BASE_ID_URL = '/info'
 PATH_ZIP_HTML_BASIC = "info"
 
+class PATHS:
+    @staticmethod
+    def IN_ZIP_NAME_FILE_BASIC():
+        return "info.json"
+
+    @staticmethod
+    def INFO():
+        return "../data/htmls/key.json"
+    
+    @staticmethod
+    def INFO_BY_URL( url ):
+        return "../data/htmls/__url__/key.json".replace("__url__" , str( url ) )
+   
+    @staticmethod
+    def INFO_BY_URL_FATHER( url ):
+        return "../data/htmls/__url__".replace("__url__" , str( url ) )
+
+    @staticmethod
+    def DATA_BY_URL_BY_DATA( url , data ):
+        return "../data/htmls/__url__/__data__.zip".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
+    @staticmethod
+    def DATA_BY_URL_BY_DATA_FATHER( url , data ):
+        return "../data/htmls/__url__".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
+    
 
 class DataBaseControl:
+    @classmethod
     def __init__( self ):
         self.url_to_id_dict = None
-        self.zipfile = ZipFile(PATH_ZIP_FILE , "a" , compression=zipfile.ZIP_LZMA , compresslevel= 9 )
-        self.flagPrimeiraLeitura = True
-
-    def contem_no_sistema( self , url , date = ""):
-    
-        self.set_url( url )
-        id_url = self.__find_url_id_or_include()
-        if date == "":
-            date_now = datetime.datetime.now()
-            date_str = f'{date_now.year}-{date_now.month}-{date_now.day}-{date_now.hour}'
-        else:
-            date_str = date
-        #try:
-        js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
-        s = js_file.read().decode()
-        js_file.close()
-        #except Exception as e:
-        #    #os.mkdir( PATH_BASE + str( id_url ) )
-        #    js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'w').decode("utf-8")
-        #    js_file.write('{}')
-        #    js_file.close()
-        #    s =''
+            
+    @classmethod
+    def contem_no_sistema( self , url ):
+        date_now = datetime.datetime.now()
+        date_str = date_now.strftime("%Y-%m-%d-%H")
+        return self._exist_url_data( url , date_str )
         
-        if s.startswith('{') and s.endswith('}'):
-            js = json.loads( s )
-        else:
-            js = dict()
+    def add_code( self , url:str , html:str ):
+        date_now = datetime.datetime.now()
+        data = date_now.strftime("%Y-%m-%d-%H")
         
-
-        if date_str in  js.keys():
-            return True
-        
-        return False
-
-    def add_code( self , url , html ):
-        self.set_url( url )
-        url_id = self.__find_url_id_or_include()
-        data_id = self.__find_date_page_or_include()
- 
-        objZF = zipfile.ZipFile(PATH_BASE + str( url_id ) + '/' + str( data_id ) , "w" , compression=zipfile.ZIP_LZMA)
-        objZF.writestr(PATH_ZIP_HTML_BASIC , html )
+        url_id = self._find_id_of_url( url , True )
+        data_id = self._find_id_of_data_in_url( url , data )
+        os.makedirs( PATHS.DATA_BY_URL_BY_DATA_FATHER( url_id , data_id ) , exist_ok= True)
+        objZF = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , "w" , compression=zipfile.ZIP_LZMA)
+        objZF.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , html )
         objZF.close()
 
     def get_dict_id_url( self ):
         if self.url_to_id_dict == None:
-            self.__read_url_id_or_include()
-        return self.url_to_id_dict
+            self.url_to_id_dict = self._get_url_to_id()
+        return self.url_to_id_dict.copy()
     
     def get_dict_date_page_of_url( self , url ):
         self.url = url
@@ -92,81 +92,112 @@ class DataBaseControl:
             s = ''
         return s
 
-    def __find_date_page_or_include( self ):
-        id_url = self.__find_url_id_or_include()
-        date_now = datetime.datetime.now()
-        date_now_str = f'{date_now.year}-{date_now.month}-{date_now.day}-{date_now.hour}'
-
-        js_file = self.zipfile.open( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , 'r')
-        s = js_file.read().decode()
-        if s.startswith('{') and s.endswith('}'):
-            js = json.loads( s )
+    @classmethod
+    def _exist_url_data( self , url , data )->bool:
+        id_url = self._find_id_of_url( url , False )
+        if id_url == -1: return False
+        try:
+            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+        except: 
+            return False
+        s = arq.read()
+        arq.close()
+        if len( s ) > 0:
+            j = json.loads( s )
+            return data in j.keys()
         else:
-            js = dict()
-        js_file.close()
+            return False
 
-        if date_now_str in  js.keys():
-            return js[ date_now_str ]
+    @classmethod
+    def _find_id_of_data_in_url( self  , url:str , data:str)->int:
+        id_url = self._find_id_of_url( url , True )
+        try:
+            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+        except Exception as e:
+            os.makedirs( PATHS.INFO_BY_URL_FATHER( id_url ) , exist_ok=True)
+            arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
+            arq.write( '{}')
+            arq.close()
+            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+        s = arq.read()
+        arq.close()
         
-        js[ date_now_str ] = max_valor( js )
-        js_out = json.dumps(js , indent=4 )
-        self.zipfile.writestr( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL , js_out  )
+        if len( s ) > 0: j = json.loads( s )
+        else:            j = dict()
 
-        return js[ date_now_str ]
+        if data in j.keys():
+            return j[data]
+        
+        j[ data ] = max_valor( j )
+        arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
+        arq.write( json.dumps( j ) )
+        arq.close()
+            
+        return j[ data ]
 
-    def __find_url_id_or_include( self ):
+    @classmethod
+    def _find_id_of_url( self , url , add ):
         if self.url_to_id_dict == None:
-            self.url_to_id_dict = self.__read_url_id_or_include()
+            self.url_to_id_dict = self._get_url_to_id()
 
-        if self.url in self.url_to_id_dict.keys():
-            return self.url_to_id_dict[ self.url ]
-        
-        self.url_to_id_dict = self.__add_url_id_or_include()
-        return self.url_to_id_dict[ self.url ]
+        if url in self.url_to_id_dict.keys():
+            return self.url_to_id_dict[ url ]
+        if add == True:
+            self.url_to_id_dict = self._add_url( url )
+            return self.url_to_id_dict[ url ]
+        else:
+            return -1
     
     def __find_url( self ):
         if self.url_to_id_dict == None:
-            self.url_to_id_dict = self.__read_url_id_or_include()
+            self.url_to_id_dict = self.__read_url_id_or_include( url )
 
         return self.url_to_id_dict[ self.url ]
 
-    def __add_url_id_or_include( self ):
-        j = self.__read_url_id_or_include()
-        
+    @classmethod
+    def _add_url( self , url ):
+        j = self._get_url_to_id()
+
         max_v = max_valor( j )
-        j[self.url] = max_v
+        j[url] = max_v
         j_out = json.dumps( j , indent=4 )
-        self.zipfile.writestr( FILE_URL_TO_ID , j_out)
+        
+        arq = open(  PATHS.INFO()  , 'w')
+        arq.write( j_out )
+        arq.close()
         
         path_id_url = PATH_BASE + str( max_v )
-        #os.makedirs( path_id_url , exist_ok=True )
+        os.makedirs( path_id_url , exist_ok=True )
         
-        self.zipfile.writestr( path_id_url + FILE_BASE_ID_URL, '' )
+        # cria o arquivo do detalhe da url
+        j = self._get_url_to_id()
+        
+        os.makedirs(PATHS.INFO_BY_URL_FATHER( j[url] ) , exist_ok= True )
+        arq = open(  PATHS.INFO_BY_URL( j[url] )  , 'w')
+        arq.write('{}')
+        arq.close()
+        
         return j
 
-    def __read_url_id_or_include( self ):
+    @classmethod
+    def _get_url_to_id( self ):
         try:
-            f = self.zipfile.open( FILE_URL_TO_ID , 'r')
-            s = f.read()
-        except:
-            print("Criando arquivo de id")
-            self.flagPrimeiraLeitura = False
-            self.zipfile.writestr( FILE_URL_TO_ID , "{}")
-            s = "{}"
+            arq = open(  PATHS.INFO()  , 'r')
+        except Exception as e:
+            arq = open(  PATHS.INFO()  , 'w')
+            arq.write('{}' )
+            arq.close()
+            arq = open(  PATHS.INFO()  , 'r')
+            print("Criando arquivo de id" , e )
+        
+        s = arq.read()
+        arq.close()
+        
+        if len( s.strip() ) > 0:    j = json.loads( s )
+        else:                       j = dict()
 
-        if len( s.strip() ) > 0:
-            j = json.loads( s )
-        else:
-            j = dict()
-          
         self.url_to_id_dict = j
         return j
-
-    def set_url( self , url ):
-        self.url = url
-
-    def exit(self):
-        self.zipfile.close()
 
 def max_valor( var ):
     m = 0

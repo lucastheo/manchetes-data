@@ -30,4 +30,3 @@ if __name__ == "__main__":
                         s += line + "\n"
                     print('[URL  ]','Falha em conseguir o retorno da página ou em salvar os dados', e , s )
     objDC.exit()
-    objDBC.exit()
