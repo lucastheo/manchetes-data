@@ -59,7 +59,7 @@ if __name__ == "__main__":
         if url not in dict_json_new.keys():
             dict_json_new[ url ] = dict()
         
-        dict_date = objDBC.get_dict_date_page_of_url( url )
+        dict_date = objDBC.get_data_of_url( url )
         for date in dict_date:
 
             if date not in dict_json[ url ].keys():               

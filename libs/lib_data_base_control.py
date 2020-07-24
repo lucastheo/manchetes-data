@@ -37,59 +37,58 @@ class PATHS:
 class DataBaseControl:
     @classmethod
     def __init__( self ):
-        self.url_to_id_dict = None
+        self.url_to_id_dict = dict()
             
     @classmethod
     def contem_no_sistema( self , url ):
         date_now = datetime.datetime.now()
         date_str = date_now.strftime("%Y-%m-%d-%H")
         return self._exist_url_data( url , date_str )
-        
+
+    @classmethod 
     def add_code( self , url:str , html:str ):
         date_now = datetime.datetime.now()
         data = date_now.strftime("%Y-%m-%d-%H")
         
         url_id = self._find_id_of_url( url , True )
-        data_id = self._find_id_of_data_in_url( url , data )
+        data_id = self._find_id_of_data_in_url( url , data , True )
         os.makedirs( PATHS.DATA_BY_URL_BY_DATA_FATHER( url_id , data_id ) , exist_ok= True)
         objZF = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , "w" , compression=zipfile.ZIP_LZMA)
         objZF.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , html )
         objZF.close()
 
+    @classmethod
     def get_dict_id_url( self ):
         if self.url_to_id_dict == None:
             self.url_to_id_dict = self._get_url_to_id()
         return self.url_to_id_dict.copy()
-    
-    def get_dict_date_page_of_url( self , url ):
-        self.url = url
-        id_url = self.__find_url()
-        
-        js_file = self.zipfile.read( PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
-        s = js_file.decode()
-        #except:
-        #    print('[ERROR] Não achou o arquivo, get_dict_date_page_of_url', PATH_BASE + str( id_url ) + FILE_BASE_ID_URL )
-        #    s = ''
-        if s.startswith('{') and s.endswith('}'):
-            js = json.loads( s )
-        else:
-            js = dict()
-        
-        return js
-    
-    def get_page_of_date_page_and_url( self , url , date_page ):
-        dict_id_url = self.get_dict_id_url( )
-        dict_date_pate = self.get_dict_date_page_of_url(  url )
 
-        if date_page not in dict_date_pate.keys():
-            return ""
-        try:
-            objZF = zipfile.ZipFile( PATH_BASE + str( dict_id_url[ url ] ) + '/' + str( dict_date_pate[ date_page ]) , "r" , compression=zipfile.ZIP_LZMA)
-            s = objZF.read(PATH_ZIP_HTML_BASIC ).decode()
-            objZF.close()
-        except Exception as e:
-            print('[ERROR] Não achou o arquivo, get_page_of_date_page_and_url' , e )
-            s = ''
+    @classmethod    
+    def get_data_of_url( self , url ):
+        id_url = self._find_url( url )
+        if url != -1:
+            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+            s = arq.read()
+            arq.close()
+
+            if s.startswith('{') and s.endswith('}'):
+                js = json.loads( s )
+            else:
+                js = dict()
+            return js
+        raise Exception("Erro em encontrar a url")
+
+    @classmethod
+    def get_page_of_date_page_and_url( self , url:str , data:str )->str:
+        id_url = self._find_id_of_url( url , False )
+        id_data= self._find_id_of_data_in_url( url , data , False )
+
+        if id_url == -1 or id_data == -1: 
+            raise Exception("Erro em encontrar o arqivo (" + id_url + " , " + id_data + ")" )
+
+        zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA_FATHER( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
+        s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC )
+        objZF.close()    
         return s
 
     @classmethod
@@ -109,16 +108,20 @@ class DataBaseControl:
             return False
 
     @classmethod
-    def _find_id_of_data_in_url( self  , url:str , data:str)->int:
+    def _find_id_of_data_in_url( self  , url:str , data:str , add:bool )->int:
         id_url = self._find_id_of_url( url , True )
         try:
             arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
         except Exception as e:
-            os.makedirs( PATHS.INFO_BY_URL_FATHER( id_url ) , exist_ok=True)
-            arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
-            arq.write( '{}')
-            arq.close()
-            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+            if add == True:
+                os.makedirs( PATHS.INFO_BY_URL_FATHER( id_url ) , exist_ok=True)
+                arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
+                arq.write( '{}')
+                arq.close()
+                arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+            else:
+                arq.close()
+                return -1
         s = arq.read()
         arq.close()
         
@@ -136,8 +139,8 @@ class DataBaseControl:
         return j[ data ]
 
     @classmethod
-    def _find_id_of_url( self , url , add ):
-        if self.url_to_id_dict == None:
+    def _find_id_of_url( self , url:str , add:bool ):
+        if len( self.url_to_id_dict.keys() ) == 0:
             self.url_to_id_dict = self._get_url_to_id()
 
         if url in self.url_to_id_dict.keys():
@@ -148,11 +151,13 @@ class DataBaseControl:
         else:
             return -1
     
-    def __find_url( self ):
-        if self.url_to_id_dict == None:
-            self.url_to_id_dict = self.__read_url_id_or_include( url )
-
-        return self.url_to_id_dict[ self.url ]
+    @classmethod
+    def _find_url( self , url  ):
+        if len( self.url_to_id_dict.keys() ) == 0:
+            self.url_to_id_dict = self._read_url_id_or_include( url )
+        if url in self.url_to_id_dict.keys(): 
+            return self.url_to_id_dict[ url ]
+        return -1
 
     @classmethod
     def _add_url( self , url ):
