@@ -59,12 +59,13 @@ class DataBaseControl:
 
     @classmethod
     def get_dict_id_url( self ):
-        if self.url_to_id_dict == None:
+        if len( self.url_to_id_dict.keys() ) == 0:
             self.url_to_id_dict = self._get_url_to_id()
         return self.url_to_id_dict.copy()
 
     @classmethod    
     def get_data_of_url( self , url ):
+        print( url )
         id_url = self._find_url( url )
         if url != -1:
             arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
@@ -85,10 +86,10 @@ class DataBaseControl:
 
         if id_url == -1 or id_data == -1: 
             raise Exception("Erro em encontrar o arqivo (" + id_url + " , " + id_data + ")" )
-
-        zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA_FATHER( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
-        s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC )
-        objZF.close()    
+        print( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) )
+        zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
+        s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC() )
+        zFile.close()    
         return s
 
     @classmethod
@@ -106,6 +107,10 @@ class DataBaseControl:
             return data in j.keys()
         else:
             return False
+
+    @classmethod
+    def find_id_of_data_in_url( self  , url:str , data:str )->int:
+        return self._find_id_of_data_in_url( url , data , False ) 
 
     @classmethod
     def _find_id_of_data_in_url( self  , url:str , data:str , add:bool )->int:
@@ -138,6 +143,10 @@ class DataBaseControl:
             
         return j[ data ]
 
+    @classmethod
+    def find_id_of_url( self , url:str  ):
+        return self._find_id_of_url( url , False ) 
+    
     @classmethod
     def _find_id_of_url( self , url:str , add:bool ):
         if len( self.url_to_id_dict.keys() ) == 0:

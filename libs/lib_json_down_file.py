@@ -11,7 +11,7 @@ def load_new( path = FILE_JSON_NEW):
     objZF.close()
     return json.loads( s )
 
-def load_all( path = FILE_JSON):
+def load_all( path:str = FILE_JSON)->dict:
     objZF = zipfile.ZipFile( path , "r" , compression=zipfile.ZIP_LZMA)
     s = objZF.read(PATH_ZIP_FILE).decode()
     objZF.close()

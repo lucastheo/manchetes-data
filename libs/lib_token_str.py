@@ -20,7 +20,7 @@ def get_names_list( list_var: list , set_valid_token = None )->set:
                 set_valid_token.add( token.lower() )
     return set_valid_token
 
-def get_tokens( var:str ):
+def get_tokens( var:str )->list:
     list_var = list()
     for token in re.split( '[\n \t:,.-?!]+', var ):
         flag = True
