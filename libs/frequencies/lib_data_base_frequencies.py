@@ -70,50 +70,7 @@ class DataBaseFrequency:
         zFile.close()
         return out 
 
-class QueryFrequency:
-    @classmethod
-    def __init__(self ):
-        self.cache_summart = DataBaseFrequency.get_summary()
-        self.cache_frequency_url = ''
-        self.cache_frequency_data = ''
-        self.cache_frequency = dict()
-    @classmethod
-    def get_summary(self)->int:
-        return self.cache_summart[__SUMMARY__][__COUNT__]
-    @classmethod
-    def get_summary_by_url( self , url:str )->int:
-        return self.cache_summart[__BY_URL__][url][__SUMMARY__][__COUNT__]
-    @classmethod
-    def get_summary_by_url_by_data( self , url:str , data:str )->int:
-        return self.cache_summart[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
-    @classmethod
-    def get_summary_by_data( self , data:str)->int:
-        count = 0
-        for url in self.cache_summart[__BY_URL__].keys():
-            count += self.cache_summart[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
-        return count
-    @classmethod
-    def get_tokens_by_url_by_data(self, url:str , data:str )->set:
-        frequency = self.__get_frequency( url , data )
-        frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys()
-    @classmethod
-    def get_frequency_by_url_by_data(self, url:str , data:str ):
-        return self.cache_summart[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
-    @classmethod
-    def get_frequency_by_url_by_data_by_token(self, url:str , data:str , token:str ):
-        frequency = self.__get_frequency( url, data ) 
-        return frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__]
-    @classmethod
-    def __get_frequency( self , url, data ):
-        if self.cache_frequency_url == url and self.cache_frequency_data == data:
-            return self.cache_frequency
-        self.cache_frequency = DataBaseFrequency.get_frequency( url, data )
-        self.cache_frequency_url = url
-        self.cache_frequency_data = data
-        return self.cache_frequency
-
-
-def generate_frequency_by_day( info:dict ):
+def generate_frequency_by_day_and_data( info:dict ):
     
     data_base_frequency = DataBaseFrequency()
     
@@ -167,12 +124,53 @@ def generate_frequency_by_day( info:dict ):
 
             data_base_frequency.save_frequency( url , data , frequency )
 
-if __name__ == "__main__":
-    if sys.argv[1] == "--all":
-        info = lib_json_down_file.load_all()
-        generate_frequency_by_day( info )
-        query_frequency = QueryFrequency()
-        print( query_frequency.get_summary() )
-        print( query_frequency.get_frequency_by_url_by_data('http://www.cnn.com.br/' , "2020-07-24-15") )
+def update_frequency_by_day_and_data( info:dict ):
+    frequency = DataBaseFrequency.get_summary()
+    for url in info.keys():    
+        for data in info[ url ].keys():
+            if __SUMMARY__ not in frequency[__BY_URL__][ url ].keys():
+                frequency[__BY_URL__][ url ][__SUMMARY__] = dict()
+                frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] = 0
+                
+            if  __BY_DATA__ not in frequency[__BY_URL__][ url ].keys():
+                frequency[__BY_URL__][ url ][__BY_DATA__] = dict()
+            
+            if  data not in frequency[__BY_URL__][ url ][__BY_DATA__].keys():
+                frequency[__BY_URL__][ url ][__BY_DATA__][ data ] = dict()
+            elif frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] > 0:
+                frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] -= frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
+                frequency[__SUMMARY__][__COUNT__] -= frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
+            frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__] = 0
+
+            for line in info[ url ][ data ]:
+                for token in lib_token_str.get_tokens( line ):
+                    token = token.lower()
+                    frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__] += 1
+                    frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] += 1  
+                    frequency[__SUMMARY__][__COUNT__] += 1
+       
+    DataBaseFrequency.save_summary( frequency )
+    for url in info.keys(): 
+        for data in info[ url ].keys():
+            frequency = DataBaseFrequency.get_frequency( url , data )
+            if  __BY_DATA__ not in frequency[__BY_URL__][ url ].keys():
+                frequency[__BY_URL__][ url ][__BY_DATA__] = dict()
+
+            if  data not in frequency[__BY_URL__][ url ][__BY_DATA__].keys():
+                frequency[__BY_URL__][ url ][__BY_DATA__][ data ] = dict()
+                frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__] = dict()
+
+            for line in info[ url ][ data ]:
+                for token in lib_token_str.get_tokens( line ):
+                    token = token.lower()
+                    if token not in frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+                        frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ] = dict()
+                        frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] = 0
+
+                    frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] += 1
+            
+            DataBaseFrequency.save_frequency( url , data , frequency )
+
+
         
 
