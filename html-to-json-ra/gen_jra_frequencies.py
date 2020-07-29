@@ -65,15 +65,13 @@ class DataBaseFrequency:
         
         id_url = data_base_control.find_id_of_url( url )
         id_data = data_base_control.find_id_of_data_in_url( url, data ) 
-
-        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'w' , compression = zipfile.ZIP_LZMA)    
+        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'r' , compression = zipfile.ZIP_LZMA)    
         out = json.loads( zFile.read(PATHS.IN_ZIP_NAME_FILE_BASIC() ) )
         zFile.close()
         return out 
 
 class QueryFrequency:
-    
-    cache_summart = dict()
+    @classmethod
     def __init__(self ):
         self.cache_summart = DataBaseFrequency.get_summary()
         self.cache_frequency_url = ''
@@ -99,6 +97,9 @@ class QueryFrequency:
         frequency = self.__get_frequency( url , data )
         frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys()
     @classmethod
+    def get_frequency_by_url_by_data(self, url:str , data:str ):
+        return self.cache_summart[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__]
+    @classmethod
     def get_frequency_by_url_by_data_by_token(self, url:str , data:str , token:str ):
         frequency = self.__get_frequency( url, data ) 
         return frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__]
@@ -118,12 +119,10 @@ def generate_frequency_by_day( info:dict ):
     
     frequency = dict()
     frequency[__BY_URL__] = dict()
-    for url in info.keys():
-        
+    frequency[__SUMMARY__] = dict()
+    frequency[__SUMMARY__][__COUNT__] = 0
+    for url in info.keys():    
         frequency[__BY_URL__][ url ] = dict()
-        frequency[__SUMMARY__] = dict()
-        frequency[__SUMMARY__][__COUNT__] = 0
-
         for data in info[ url ].keys():
             if __SUMMARY__ not in frequency[__BY_URL__][ url ].keys():
                 frequency[__BY_URL__][ url ][__SUMMARY__] = dict()
@@ -152,9 +151,10 @@ def generate_frequency_by_day( info:dict ):
             frequency[__BY_URL__][ url ] = dict()
             if  __BY_DATA__ not in frequency[__BY_URL__][ url ].keys():
                 frequency[__BY_URL__][ url ][__BY_DATA__] = dict()
-            
+
             if  data not in frequency[__BY_URL__][ url ][__BY_DATA__].keys():
                 frequency[__BY_URL__][ url ][__BY_DATA__][ data ] = dict()
+                frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__] = dict()
 
             for line in info[ url ][ data ]:
                 for token in lib_token_str.get_tokens( line ):
@@ -171,5 +171,8 @@ if __name__ == "__main__":
     if sys.argv[1] == "--all":
         info = lib_json_down_file.load_all()
         generate_frequency_by_day( info )
+        query_frequency = QueryFrequency()
+        print( query_frequency.get_summary() )
+        print( query_frequency.get_frequency_by_url_by_data('http://www.cnn.com.br/' , "2020-07-24-15") )
         
 
