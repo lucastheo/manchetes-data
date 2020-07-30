@@ -62,7 +62,6 @@ class DataBaseFrequency:
     @staticmethod
     def get_frequency( url, data ):
         data_base_control = lib_data_base_control.DataBaseControl()
-        
         id_url = data_base_control.find_id_of_url( url )
         id_data = data_base_control.find_id_of_data_in_url( url, data ) 
         zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'r' , compression = zipfile.ZIP_LZMA)    

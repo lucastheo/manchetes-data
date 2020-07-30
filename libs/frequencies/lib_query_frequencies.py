@@ -50,3 +50,40 @@ class QueryFrequency:
         self.cache_frequency_url = url
         self.cache_frequency_data = data
         return self.cache_frequency
+
+    @classmethod
+    def get_tokens_info( self ):
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
+                local_frequency = self.__get_frequency( url , data )
+                for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+                    if token not in out.keys():
+                        out[token] = 0
+                    out[token] += local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__]        
+        return out
+    
+    @classmethod
+    def __get_token_info_by_data_base( self , out:dict , url:str , data:str )->dict:
+        if data not in out.keys(): 
+            out[data] = dict()
+        local_frequency = self.__get_frequency( url , data )
+        for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+            if token not in out[data].keys():
+                out[data][token] = 0
+            out[data][token] += local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__]     
+    @classmethod
+    def get_tokens_info_by_data( self )->dict:
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
+                self.__get_token_info_by_data_base( out , url , data )
+        return out
+    @classmethod
+    def get_tokens_info_by_data_in_data( self , datas:set )->dict:
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
+                if data in datas:
+                    self.__get_token_info_by_data_base( out , url , data )     
+        return out

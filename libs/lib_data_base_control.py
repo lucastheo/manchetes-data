@@ -135,7 +135,8 @@ class DataBaseControl:
 
         if data in j.keys():
             return j[data]
-        
+        elif add == False:
+            return -1
         j[ data ] = max_valor( j )
         arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
         arq.write( json.dumps( j ) )

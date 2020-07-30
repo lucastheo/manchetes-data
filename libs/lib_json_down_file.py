@@ -36,4 +36,18 @@ def save_json_new( html ):
     objZF = zipfile.ZipFile( FILE_JSON_NEW , "w" , compression=zipfile.ZIP_LZMA)
     objZF.writestr(PATH_ZIP_FILE , s )
     objZF.close()
-        
+
+def who_are_new_by_url_by_data():
+    var = load_new()
+    out = dict()
+    for url in var.keys():
+        out[ url ] = var[ url ].keys()
+    return out
+
+def who_are_new_data():
+    var = load_new()
+    out = set()
+    for url in var.keys():
+        for data in var[url].keys():
+            out.add( data )
+    return out
