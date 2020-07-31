@@ -87,3 +87,40 @@ class QueryFrequency:
                 if data in datas:
                     self.__get_token_info_by_data_base( out , url , data )     
         return out
+    @classmethod
+    def __get_tokens_info_by_url( self , out:dict , url:str ):
+        out[ url ] = dict()
+        for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
+            local_frequency = self.__get_frequency( url , data )
+            for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+                if token not in out[url].keys():
+                    out[url][token] = 0
+                out[url][token] += local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__]     
+        return out
+    @classmethod
+    def get_tokens_info_by_url( self ):
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            self.__get_tokens_info_by_url( out, url )  
+        return out
+    @classmethod
+    def get_tokens_info_by_url_in_data( self , urls:set):
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            if url in urls:
+                self.__get_tokens_info_by_url( out, url )  
+        return out
+    @classmethod
+    def get_tokens_info_by_url_by_data( self ):
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            out[ url ] = dict()
+            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
+                if data not in out[ url ].keys():
+                    out[ url ][ data ] = dict()
+                local_frequency = self.__get_frequency( url , data )    
+                for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+                    if token not in out[ url ][ data ].keys():
+                        out[ url ][ data ][ token ] = 0
+                    out[ url ][ data ][ token ] += 1 
+        return out

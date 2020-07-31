@@ -51,3 +51,9 @@ def who_are_new_data():
         for data in var[url].keys():
             out.add( data )
     return out
+
+def who_are_new_url():
+    var = load_new()
+    return var.keys()
+        
+    
