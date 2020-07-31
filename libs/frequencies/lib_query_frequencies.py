@@ -104,23 +104,36 @@ class QueryFrequency:
             self.__get_tokens_info_by_url( out, url )  
         return out
     @classmethod
-    def get_tokens_info_by_url_in_data( self , urls:set):
+    def get_tokens_info_by_url_in_data( self , urls:set)->dict:
         out = dict()
         for url in self.cache_summart[__BY_URL__].keys():
             if url in urls:
                 self.__get_tokens_info_by_url( out, url )  
         return out
     @classmethod
-    def get_tokens_info_by_url_by_data( self ):
+    def __get_tokens_info_by_url_by_data( self , out:dict , url:str , data:str )->dict:
+        if data not in out[ url ].keys():
+            out[ url ][ data ] = dict()
+        local_frequency = self.__get_frequency( url , data )    
+        for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+            if token not in out[ url ][ data ].keys():
+                out[ url ][ data ][ token ] = 0
+            out[ url ][ data ][ token ] += 1 
+    @classmethod
+    def get_tokens_info_by_url_by_data( self )->dict:
         out = dict()
         for url in self.cache_summart[__BY_URL__].keys():
             out[ url ] = dict()
-            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():
-                if data not in out[ url ].keys():
-                    out[ url ][ data ] = dict()
-                local_frequency = self.__get_frequency( url , data )    
-                for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
-                    if token not in out[ url ][ data ].keys():
-                        out[ url ][ data ][ token ] = 0
-                    out[ url ][ data ][ token ] += 1 
+            for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():    
+                self.__get_tokens_info_by_url_by_data( out , url , data )
+        return out
+    @classmethod
+    def get_tokens_info_by_url_by_data_in_url_in_data( self , in_url_in_data:dict):
+        out = dict()
+        for url in self.cache_summart[__BY_URL__].keys():
+            if url in in_url_in_data.keys():
+                out[ url ] = dict()
+                for data in self.cache_summart[__BY_URL__][ url ][__BY_DATA__].keys():  
+                    if data in in_url_in_data[ url ]:
+                        self.__get_tokens_info_by_url_by_data( out , url , data )
         return out

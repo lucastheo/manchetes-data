@@ -48,6 +48,14 @@ class DataBaseFrequency:
         return out
 
     @staticmethod
+    def contains_frequency( url , data )->bool:
+        data_base_control = lib_data_base_control.DataBaseControl()
+
+        id_url = data_base_control.find_id_of_url( url )
+        id_data = data_base_control.find_id_of_data_in_url( url, data ) 
+        return os.path.exists( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) )
+
+    @staticmethod
     def save_frequency( url , data , frequency ):
         data_base_control = lib_data_base_control.DataBaseControl()
 
@@ -124,6 +132,37 @@ def generate_frequency_by_day_and_data( info:dict ):
             data_base_frequency.save_frequency( url , data , frequency )
 
 def update_frequency_by_day_and_data( info:dict ):
+
+    
+    for url in info.keys(): 
+        for data in info[ url ].keys():
+            if DataBaseFrequency.contains_frequency( url , data ) == True:
+                frequency_local = DataBaseFrequency.get_frequency( url , data )
+            else: 
+                frequency_local = dict()
+                frequency_local[__BY_URL__] = dict()
+
+            if url not in frequency_local[__BY_URL__].keys():
+                    frequency_local[__BY_URL__][ url ] = dict()
+
+            if  __BY_DATA__ not in frequency_local[__BY_URL__][ url ].keys():
+                frequency_local[__BY_URL__][ url ][__BY_DATA__] = dict()
+
+            if  data not in frequency_local[__BY_URL__][ url ][__BY_DATA__].keys():
+                frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ] = dict()
+                frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__] = dict()
+
+            for line in info[ url ][ data ]:
+                for token in lib_token_str.get_tokens( line ):
+                    token = token.lower()
+                    if token not in frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
+                        frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ] = dict()
+                        frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] = 0
+
+                    frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] += 1
+            
+            DataBaseFrequency.save_frequency( url , data , frequency_local )
+    
     frequency = DataBaseFrequency.get_summary()
     for url in info.keys():    
         for data in info[ url ].keys():
@@ -147,28 +186,7 @@ def update_frequency_by_day_and_data( info:dict ):
                     frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__COUNT__] += 1
                     frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] += 1  
                     frequency[__SUMMARY__][__COUNT__] += 1
-       
-    DataBaseFrequency.save_summary( frequency )
-    for url in info.keys(): 
-        for data in info[ url ].keys():
-            frequency = DataBaseFrequency.get_frequency( url , data )
-            if  __BY_DATA__ not in frequency[__BY_URL__][ url ].keys():
-                frequency[__BY_URL__][ url ][__BY_DATA__] = dict()
-
-            if  data not in frequency[__BY_URL__][ url ][__BY_DATA__].keys():
-                frequency[__BY_URL__][ url ][__BY_DATA__][ data ] = dict()
-                frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__] = dict()
-
-            for line in info[ url ][ data ]:
-                for token in lib_token_str.get_tokens( line ):
-                    token = token.lower()
-                    if token not in frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
-                        frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ] = dict()
-                        frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] = 0
-
-                    frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] += 1
-            
-            DataBaseFrequency.save_frequency( url , data , frequency )
+    DataBaseFrequency.save_summary( frequency )   
 
 
         
