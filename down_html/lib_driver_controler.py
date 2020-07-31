@@ -1,7 +1,7 @@
 #
 #   fica responsavel em fazer o download da página
 #
-from selenium import webdriver
+#
 import requests 
 
 class DriverControler:
