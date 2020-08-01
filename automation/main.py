@@ -2,9 +2,7 @@ import os
 import lib_exe_down_html
 import lib_exe_html_to_json_ra
 import lib_exe_json_ra_to_data_base
-import lib_exe_json_ra_to_json_re
 import lib_exe_data_base_to_json_re
-import lib_exe_json_re_to_plot
 import datetime
 
 def get_time_now():
