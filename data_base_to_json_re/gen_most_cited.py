@@ -30,6 +30,9 @@ def get_exec()->dict:
 
 class PATHS:
     @staticmethod
+    def ALL_FATHER()->str:
+        return '../data/json_refined/most_cited/'
+    @staticmethod
     def ALL()->str:
         return '../data/json_refined/most_cited/all_url_all_data.json'
     @staticmethod
@@ -71,6 +74,7 @@ def generate_jre(tokens_info:dict , path:str , info:dict ):
     #print( json.dumps( out , indent = 4) )
 
 def all( query_frequency:QueryFrequency )->None:
+    os.makedirs( PATHS.ALL_FATHER() , exist_ok=True )
     info = {'type':'all' , 'query':{}}
     tokens_info = query_frequency.get_tokens_info()
     generate_jre( tokens_info , PATHS.ALL() , info )

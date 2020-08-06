@@ -8,7 +8,7 @@ def execute( reexecute = False):
 def gen_frequencicies( reexecute ):
     f = 'gen_most_cited.py'
     if reexecute == False:  reexecute_str = '-new'
-    else:                   reexecute_str = '-all'
+    else:                   reexecute_str = ''
 
     s = 'cd ' + PATH_DOWN_HTML + ';\n'
     s += PYTHON + " " + f + " --all\n"
