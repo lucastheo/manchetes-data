@@ -118,7 +118,7 @@ class QueryFrequency:
         for token in local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__].keys():
             if token not in out[ url ][ data ].keys():
                 out[ url ][ data ][ token ] = 0
-            out[ url ][ data ][ token ] += 1 
+            out[ url ][ data ][ token ] += local_frequency[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] 
     @classmethod
     def get_tokens_info_by_url_by_data( self )->dict:
         out = dict()
