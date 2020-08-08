@@ -22,10 +22,10 @@ def get_names_list( list_var: list , set_valid_token = None )->set:
 
 def get_tokens( var:str )->list:
     list_var = list()
-    for token in re.split( '[\n \t:,.-?!]+', var ):
+    for token in re.split( '[\n \t:,.\-?!]+', var ):
         flag = True
-        for forbidden in ["_", "$"]:
-            if forbidden in token:
+        for forbidden in ["_", "$", ""]:
+            if forbidden in token or forbidden == token:
                 flag = False
         if flag == True:
             list_var.append( token )
