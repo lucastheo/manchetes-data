@@ -90,7 +90,7 @@ class DataBaseControl:
         zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
         s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC() )
         zFile.close()    
-        return s
+        return s.decode()
 
     @classmethod
     def _exist_url_data( self , url , data )->bool:

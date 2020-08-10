@@ -24,9 +24,11 @@ def get_tokens( var:str )->list:
     list_var = list()
     for token in re.split( '[\n \t:,.\-?!]+', var ):
         flag = True
-        for forbidden in ["_", "$", ""]:
-            if forbidden in token or forbidden == token:
+        for forbidden in ["_", "$"]:
+            if forbidden in token:
                 flag = False
+        if token == '':
+            flag = False
         if flag == True:
             list_var.append( token )
     return list_var

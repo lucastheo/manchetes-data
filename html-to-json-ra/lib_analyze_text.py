@@ -3,18 +3,23 @@ from bs4 import BeautifulSoup
 def extrair_text_of_html( html:str )->list:
     
     s = BeautifulSoup( html , features="lxml" )
-    sanitizer_soup( s )                
-    list_str = list()
+    #sanitizer_soup( s )   
 
-    for line in s.strings:
-        
+    string = html.replace("\n" , "")
+    strings = re.findall(r'>[-\'a-zA-ZÀ-ÖØ-öø-ÿ0-9 .,!?&#]+<|\"[-\'a-zA-ZÀ-ÖØ-öø-ÿ0-9 .,!?&#]*\"', string )
+    list_str = list()
+    for line in strings:
+        line = line.lstrip(">").rstrip("<").strip("\"").strip()
         if len( line ) < 100000 :
             var0 = re.fullmatch(r"[\n ]*" , line )
             var1 = "{" in line or "}" in line
             var3 = re.match(r"\([^\)]\(", line )
             var4 = re.match('var [^;];' , line )
             var5 = len( re.findall('[ ]{1,}' , line.strip() ) ) < 3
-            var = not( var0 or var1 or var3 or var4  or var5 )
+            var6 = not hyphen_validate( line )
+            var7 = not number_validate( line )
+            var8 = not compatilhar_validate( line )
+            var = not( var0 or var1 or var3 or var4  or var5 or var6 or var7 or var8 )
 
             if var :
                 s = decode_code_problens_solver( line )
@@ -64,3 +69,26 @@ def sanitizer_soup( s:BeautifulSoup )->None:
     # Remove style attributes (if needed)
     for tag in s.find_all(style=True):
         del tag['style']
+
+def hyphen_validate( string:str ):
+    if string.count('-') > len( string ) / 20: 
+        return False
+    return True
+
+def number_validate( string:str ):
+    if len( re.findall("[0-9]+[.,]{0,1}[0-9]*" , string) ) > len( re.findall("[-\'a-zA-ZÀ-ÖØ-öø-ÿ .,!?]" , string ) ) / 10: 
+        return False
+    return True
+
+def compatilhar_validate( string:str ):
+    list_proibidas = [ "facebook" , "whatsapp" , "twitter" , "messenger" , "linkedIn" , "email" ]
+    list_find = re.findall('[-\'a-zA-ZÀ-ÖØ-öø-ÿ.,!?]+' , string )
+    cout = 0 
+    for token in list_find:
+        if token.lower() in list_proibidas:
+            cout += 1
+            
+    if cout > len( list_find ) / 3:
+
+        return False 
+    return True
