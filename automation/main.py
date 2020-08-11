@@ -14,9 +14,7 @@ if __name__ == "__main__":
     print("[DATA ]" , get_time_now() )
     lib_exe_down_html.execute()
     lib_exe_html_to_json_ra.execute()
-    lib_exe_json_ra_to_data_base.execute(True)
-    lib_exe_data_base_to_json_re.execute(True)
-    #lib_exe_json_ra_to_json_re.execute(reexecute=True)
-    #lib_exe_json_re_to_plot.execute(reexecute=True)
+    lib_exe_json_ra_to_data_base.execute(False)
+    lib_exe_data_base_to_json_re.execute(False)
     print("[EXIT ]-------------------------------------------------------------------------")
 

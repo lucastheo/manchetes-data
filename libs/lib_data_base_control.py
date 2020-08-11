@@ -65,7 +65,6 @@ class DataBaseControl:
 
     @classmethod    
     def get_data_of_url( self , url ):
-        print( url )
         id_url = self._find_url( url )
         if url != -1:
             arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
@@ -86,7 +85,6 @@ class DataBaseControl:
 
         if id_url == -1 or id_data == -1: 
             raise Exception("Erro em encontrar o arqivo (" + id_url + " , " + id_data + ")" )
-        print( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) )
         zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
         s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC() )
         zFile.close()    

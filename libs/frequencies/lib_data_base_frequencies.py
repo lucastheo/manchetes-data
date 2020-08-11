@@ -86,7 +86,8 @@ def generate_frequency_by_day_and_data( info:dict ):
     frequency[__SUMMARY__] = dict()
     frequency[__SUMMARY__][__COUNT__] = 0
     for url in info.keys():    
-        frequency[__BY_URL__][ url ] = dict()
+        if len( info[ url ].keys() ) > 0:
+            frequency[__BY_URL__][ url ] = dict()
         for data in info[ url ].keys():
             if __SUMMARY__ not in frequency[__BY_URL__][ url ].keys():
                 frequency[__BY_URL__][ url ][__SUMMARY__] = dict()
