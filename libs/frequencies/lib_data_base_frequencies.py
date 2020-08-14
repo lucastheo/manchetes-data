@@ -35,6 +35,10 @@ class DataBaseFrequency:
         pass
 
     @staticmethod
+    def contains_summary()->bool:
+        return os.path.exists( PATHS.SUMMARY(__FREQUENCY__) )
+
+    @staticmethod
     def save_summary( frequency:dict)->None:
         zFile = zipfile.ZipFile(PATHS.SUMMARY(__FREQUENCY__) , 'w' , compression = zipfile.ZIP_LZMA )
         zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( frequency , indent= 4) ) 
@@ -163,10 +167,22 @@ def update_frequency_by_day_and_data( info:dict ):
                     frequency_local[__BY_URL__][ url ][__BY_DATA__][ data ][__TOKEN__][ token ][__FREQUENCY__] += 1
             
             DataBaseFrequency.save_frequency( url , data , frequency_local )
-    
-    frequency = DataBaseFrequency.get_summary()
+   
+    if DataBaseFrequency.contains_summary():
+        frequency = DataBaseFrequency.get_summary()
+    else:                       
+        frequency = dict()
+        frequency[__BY_URL__] = dict()
+        frequency[__SUMMARY__] = dict()
+        frequency[__SUMMARY__][__COUNT__] = 0
+
     for url in info.keys():    
         for data in info[ url ].keys():
+            if url not in frequency[__BY_URL__]:
+                frequency[__BY_URL__][ url ] = dict()
+                frequency[__BY_URL__][ url ][__SUMMARY__] = dict()
+                frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] = 0
+
             if __SUMMARY__ not in frequency[__BY_URL__][ url ].keys():
                 frequency[__BY_URL__][ url ][__SUMMARY__] = dict()
                 frequency[__BY_URL__][ url ][__SUMMARY__][__COUNT__] = 0
