@@ -69,7 +69,7 @@ def generate_jre(tokens_info:dict , path:str , info:dict ):
     filter_order_token = filter_stop_words( order_token )
     out = lib_json_utils.parse_to_jre_most_cited( filter_order_token , info )
     arq = open( path, 'w')
-    arq.write( json.dumps( out , indent = 4) )
+    arq.write( json.dumps( out ) )
     arq.close()
     #print( json.dumps( out , indent = 4) )
 
@@ -81,9 +81,29 @@ def all( query_frequency:QueryFrequency )->None:
 
 def data( tokens_info_by_data:dict )->None:
     os.makedirs( PATHS.BY_DATA_FATHER() , exist_ok=True )
+    var = dict()
+    cont = dict()
     for data in tokens_info_by_data.keys():
+        real_data = convert_data( data )
+        for token in tokens_info_by_data[ data ].keys():
+            if real_data not in var.keys():
+                var[ real_data ] = dict()
+                cont[ real_data ] = dict()
+            
+            if token in var[ real_data ].keys():
+                var[ real_data ][ token ] += tokens_info_by_data[ data ][ token ]
+                cont[ real_data ][ token ] += 1
+            else:
+                var[ real_data ][ token ] = tokens_info_by_data[ data ][ token ]
+                cont[ real_data ][ token ] = 1
+
+    for real_data in var.keys():
+        for token in var[ real_data ].keys():
+            var[ real_data ][ token ] = int( var[ real_data ][ token] / cont[real_data][ token ] )
+
+    for data in var.keys():
         info = {'type':'tokens info by data' , 'query':{'data':data } }
-        generate_jre( tokens_info_by_data[data] , PATHS.BY_DATA( data ) , info )
+        generate_jre( var[data] , PATHS.BY_DATA( data ) , info )
 
 def url( tokens_info_by_url:dict )->None:
     os.makedirs( PATHS.BY_URL_FATHER() , exist_ok=True )
@@ -122,6 +142,12 @@ def url_data_new( query_frequency:QueryFrequency )->None:
     tokens_info_by_url_by_data = query_frequency.get_tokens_info_by_url_by_data_in_url_in_data( lib_json_down_file.who_are_new_by_url_by_data() )
     url_data( tokens_info_by_url_by_data )
 
+def convert_data( date:str ):
+    if '-' in date:
+        var = date.split('-')
+        return f"{var[0]}-{var[1]}-{var[2]}"
+    raise Exception("Não foi encontrado \"-\" na data "+ date )
+
 if __name__ == "__main__":
     query_frequency = QueryFrequency()
     execute = get_exec()
@@ -133,3 +159,4 @@ if __name__ == "__main__":
     else:
         print('[ERROR] Gerando most_cited, argumento não encontrado' , sys.argv[1])
     
+
