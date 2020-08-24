@@ -2,7 +2,7 @@ import sys
 sys.path.append("../libs")
 
 from subject .lib_data_base_subject import generate_subject
-#from frequencies.lib_data_base_frequencies import update_frequency_by_day_and_data
+from subject.lib_data_base_subject import update_subject
 import lib_json_down_file
 
 if __name__ == "__main__":
@@ -10,6 +10,6 @@ if __name__ == "__main__":
     if sys.argv[1] == '--all':
         var = lib_json_down_file.load_all()
         generate_subject( var )    
-    #else:
-    #    var = lib_json_down_file.load_new()
-    #    update_frequency_by_day_and_data( var )
+    else:
+        var = lib_json_down_file.load_new()
+        update_subject( var )
