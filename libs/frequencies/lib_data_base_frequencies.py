@@ -148,7 +148,7 @@ def update_frequency_by_day_and_data( info:dict ):
                 frequency_local[__BY_URL__] = dict()
 
             if url not in frequency_local[__BY_URL__].keys():
-                    frequency_local[__BY_URL__][ url ] = dict()
+                frequency_local[__BY_URL__][ url ] = dict()
 
             if  __BY_DATA__ not in frequency_local[__BY_URL__][ url ].keys():
                 frequency_local[__BY_URL__][ url ][__BY_DATA__] = dict()

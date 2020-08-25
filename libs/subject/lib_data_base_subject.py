@@ -26,8 +26,8 @@ class PATHS:
     def DATA_BY_URL_BY_DATA_FATHER( url , data ):
         return f"{PATHS.BASE()}/__url__/__data__/".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
     @staticmethod
-    def SUMMARY( type ):
-        return f"{PATHS.BASE()}/__type__.zip".replace("__type__", type )
+    def INFO( type ):
+        return f"{PATHS.BASE()}/__type__.txt".replace("__type__", type )
 
 class DataBaseSubject:
     @classmethod
@@ -52,6 +52,8 @@ class DataBaseSubject:
         zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __SUBJECT__ ) , 'w' , compresslevel=9)    
         zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( subjects , indent= 4) ) 
         zFile.close()
+
+        DataBaseSubject.update_keys( url , data )
     
     @staticmethod
     def get_subject( url:str, data:str ):
@@ -62,50 +64,31 @@ class DataBaseSubject:
         out = json.loads( zFile.read(PATHS.IN_ZIP_NAME_FILE_BASIC() ) )
         zFile.close()
         return out 
-
     @staticmethod
-    def save_summary( subjects:dict)->None:
-        zFile = zipfile.ZipFile(PATHS.SUMMARY(__SUBJECT__) , 'w' , compresslevel=9 )
-        zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( subjects , indent= 4) ) 
-        zFile.close()
-
-    @staticmethod
-    def get_summary()->dict:
-        zFile = zipfile.ZipFile(PATHS.SUMMARY(__SUBJECT__) , 'r' )
-        out = json.loads( zFile.read(PATHS.IN_ZIP_NAME_FILE_BASIC() ) )
-        zFile.close()
+    def get_keys():
+        if os.path.exists( PATHS.INFO(__SUBJECT__) ) == False:
+            return dict()
+        with open( PATHS.INFO(__SUBJECT__) , 'r' ) as arq:    
+            out = json.load( arq)
         return out
-    
 
-def generate_subject( info:dict ):
-    data_base_subject = DataBaseSubject()
-    out = dict()
-    out[ __BY_URL__ ] = dict()
-    out[ __SUMMARY__] = dict()
-    out[ __SUMMARY__][__SUBJECT__] = dict()
-    for url in info.keys():
-        if url not in out[ __BY_URL__ ].keys():
-            out[__BY_URL__][url] = dict()
-            out[__BY_URL__][url][__SUMMARY__] = dict()
-            out[__BY_URL__][url][__SUMMARY__][__SUBJECT__] = dict()
-            out[__BY_URL__][url][__BY_DATA__] = dict()
-            out[__BY_URL__][url][__BY_DATA__][__SUMMARY__] = dict()
-            out[__BY_URL__][url][__BY_DATA__][__SUMMARY__][__SUBJECT__] = dict()
-        
-        for data in info[url].keys():
-            if data not in out[__BY_URL__][url][__BY_DATA__].keys():
-                out[__BY_URL__][ url ][__BY_DATA__][data]= dict()
-                out[__BY_URL__][ url ][__BY_DATA__][data][__SUMMARY__] = dict()
-                out[__BY_URL__][ url ][__BY_DATA__][data][__SUMMARY__][__SUBJECT__] = dict()
-            
-            for line in info[url][data]:
-                subjects = lib_token_str.get_subject( line )
-                for sub in subjects.keys():
-                    plus_subject( sub , out[ __SUMMARY__][__SUBJECT__] , subjects[sub] )
-                    plus_subject( sub , out[__BY_URL__][url][__SUMMARY__][__SUBJECT__] , subjects[sub] )
-                    plus_subject( sub , out[__BY_URL__][url][__BY_DATA__][data][__SUMMARY__][__SUBJECT__] , subjects[sub] )
+    @staticmethod
+    def update_keys( url:str , data:str ):
+        keys = DataBaseSubject.get_keys()
+        if data not in keys[url]:
+            keys[url].append( data )    
     
+    @staticmethod
+    def clean_keys():
+        if os.path.exists( PATHS.INFO(__SUBJECT__) ):
+            return
+        with open( PATHS.INFO(__SUBJECT__) , 'w' ) as arq:    
+            out = json.dump( dict() )
+        return out
+            
+def generate_subject( info:dict ):
     data_base_subject.save_summary( out )
+    data_base_subject.clean_keys()
     for url in info.keys():
         for data in info[url].keys():
             out = dict()
@@ -138,35 +121,6 @@ def update_subject( info:dict ):
                 for sub in subjects.keys():
                     plus_subject( sub ,  update[__BY_URL__][ url ][__BY_DATA__][data][__SUBJECT__] , subjects[sub] )
             data_base_subject.save_subject( url , data , update )
-    
-    update = data_base_subject.get_summary()
-    for url in info.keys():
-        if_not_in_upgrade( update,__BY_URL__ )
-        if_not_in_upgrade( update[__BY_URL__],url        )
-        if_not_in_upgrade( update[__BY_URL__][url],__BY_DATA__)
-        if_not_in_upgrade( update[__BY_URL__][url],__SUMMARY__)
-        if_not_in_upgrade( update[__BY_URL__][url][__SUMMARY__],__SUBJECT__)
-        
-        for data in info[ url ].keys():
-            if_not_in_upgrade( update[__BY_URL__][url][__BY_DATA__],data )
-            if_not_in_upgrade( update[__BY_URL__][url][__BY_DATA__][data],__SUBJECT__)
-
-            #Apagando o valor nos outros summarys
-            for key in update[__BY_URL__][url][__BY_DATA__][data][__SUBJECT__]:
-                var = update[__BY_URL__][url][__BY_DATA__][data][__SUBJECT__][key]
-                negative_subject( key , update[__SUMMARY__][__SUBJECT__]                          , var )
-                negative_subject( key , update[__BY_URL__ ][url        ][__SUMMARY__][__SUBJECT__],  var )
-            update[__BY_URL__][url][__BY_DATA__][data][__SUBJECT__] = dict()
-            
-            #Fazendo o upgrade com os valore atuais
-            for line in info[url][data]:
-                subjects = lib_token_str.get_subject( line )
-                for sub in subjects.keys():
-                    plus_subject( sub , update[__SUMMARY__][__SUBJECT__] , subjects[sub] )
-                    plus_subject( sub , update[__BY_URL__ ][url        ][__SUMMARY__][__SUBJECT__], subjects[sub] )
-                    plus_subject( sub , update[__BY_URL__ ][url        ][__BY_DATA__][data       ][__SUMMARY__][__SUBJECT__] , subjects[sub] )
-
-    data_base_subject.save_subject( url , data , update )
 
 def plus_subject( key:str , var:dict , plus:dict ):
     if key not in var.keys():
