@@ -1,24 +1,24 @@
 import re
 stop_words = None
 
-def get_subject( var:str )->list:
-    list_token = get_tokens( var )
+def get_subject( string_list:str )->list:
+    list_token = get_tokens( string_list )
     if len( list_token  ) == 0:
         return dict()
-    list_token = list( map( str.lower, list_token ) )
+    
     out = dict()
-    out[ list_token[ 0 ] ] = { 'positivo':0,'negativo':0,'indiferente':1 } 
+    out[ list_token[ 0 ].lower() ] = { 'positivo':0,'negativo':0,'indiferente':1 } 
     list_token = list_token[1:]
     for token in list_token:
-        if token not in out.keys():
-            out[ token ] = { 'positivo':0,'negativo':0,'indiferente':0 } 
+        if token.lower() not in out.keys():
+            out[ token.lower() ] = { 'positivo':0,'negativo':0,'indiferente':0 } 
         var = is_name( token )
         if var == 1:
-            out[ token ]['positivo'] += 1
+            out[ token.lower() ]['positivo'] += 1
         elif var == -1:
-            out[ token ]['negativo'] += 1
+            out[ token.lower() ]['negativo'] += 1
         else:
-            out[ token ]['indiferente'] += 1
+            out[ token.lower() ]['indiferente'] += 1
     return out
 
 def get_tokens( var:str )->list:
@@ -46,10 +46,11 @@ def is_uppercase( var )->bool:
 
 def is_name( var )->bool:
     if len( var ) > 1:
-        o1 = ord( var[ 0 ] )
-        o2 = ord( var[ 1 ] )
-        if 90 >= o2 and o2 >= 65:
-            if 90 >= o1 and o1 >= 65: return 1
+        o1 = var[ 0 ].lower() != var[ 0 ]
+        o2 = var[ 1 ].lower() != var[ 1 ]
+    
+        if not o2:
+            if o1: return 1
             else: -1
         else:
             return 0

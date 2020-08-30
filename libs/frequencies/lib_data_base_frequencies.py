@@ -40,13 +40,13 @@ class DataBaseFrequency:
 
     @staticmethod
     def save_summary( frequency:dict)->None:
-        zFile = zipfile.ZipFile(PATHS.SUMMARY(__FREQUENCY__) , 'w' , compression = zipfile.ZIP_LZMA )
+        zFile = zipfile.ZipFile(PATHS.SUMMARY(__FREQUENCY__) , 'w' , compression = zipfile.ZIP_BZIP2 , compresslevel=9)
         zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( frequency , indent= 4) ) 
         zFile.close()
     
     @staticmethod
     def get_summary()->dict:
-        zFile = zipfile.ZipFile(PATHS.SUMMARY(__FREQUENCY__) , 'r' , compression = zipfile.ZIP_LZMA )
+        zFile = zipfile.ZipFile(PATHS.SUMMARY(__FREQUENCY__) , 'r' , compression = zipfile.ZIP_BZIP2 , compresslevel=9)
         out = json.loads( zFile.read(PATHS.IN_ZIP_NAME_FILE_BASIC() ) )
         zFile.close()
         return out
@@ -57,7 +57,7 @@ class DataBaseFrequency:
 
         id_url = data_base_control.find_id_of_url( url )
         id_data = data_base_control.find_id_of_data_in_url( url, data ) 
-        return os.path.exists( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) )
+        return os.path.exists( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , compresslevel=9)
 
     @staticmethod
     def save_frequency( url , data , frequency ):
@@ -67,7 +67,7 @@ class DataBaseFrequency:
         id_data = data_base_control.find_id_of_data_in_url( url, data ) 
         os.makedirs(PATHS.DATA_BY_URL_BY_DATA_FATHER( id_url, id_data ) , exist_ok = True )
 
-        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'w' , compression = zipfile.ZIP_LZMA)    
+        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'w' , compression = zipfile.ZIP_BZIP2 , compresslevel=9)    
         zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( frequency , indent= 4) ) 
         zFile.close()
     
@@ -76,7 +76,7 @@ class DataBaseFrequency:
         data_base_control = lib_data_base_control.DataBaseControl()
         id_url = data_base_control.find_id_of_url( url )
         id_data = data_base_control.find_id_of_data_in_url( url, data ) 
-        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'r' , compression = zipfile.ZIP_LZMA)    
+        zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __FREQUENCY__ ) , 'r' , compression = zipfile.ZIP_BZIP2 , compresslevel=9)    
         out = json.loads( zFile.read(PATHS.IN_ZIP_NAME_FILE_BASIC() ) )
         zFile.close()
         return out 

@@ -3,7 +3,7 @@
 #
 #
 import requests 
-#from selenium import webdriver
+from selenium import webdriver
 
 class DriverControler:
 
@@ -14,13 +14,13 @@ class DriverControler:
         self.driver = None
 
     def get( self, url ):
-        #if self.driver is None:
-           #self.driver = webdriver.Firefox()
-        #self.driver.get( url )
+        if self.driver is None:
+           self.driver = webdriver.Firefox()
+        self.driver.get( url )
         
-        var = requests.get( url , headers= self.HEADERS  )
-        #return str( self.driver.page_source )
-        return var.text
+        #var = requests.get( url , headers= self.HEADERS  )
+        return str( self.driver.page_source )
+        #return var.text
     
     
     def exit( self ):

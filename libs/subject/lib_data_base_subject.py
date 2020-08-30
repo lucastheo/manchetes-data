@@ -28,6 +28,9 @@ class PATHS:
     @staticmethod
     def INFO( type ):
         return f"{PATHS.BASE()}/__type__.txt".replace("__type__", type )
+    @staticmethod
+    def INFO_FATHER( type ):
+        return f"{PATHS.BASE()}/".replace("__type__", type )
 
 class DataBaseSubject:
     @classmethod
@@ -52,7 +55,6 @@ class DataBaseSubject:
         zFile = zipfile.ZipFile(PATHS.DATA_BY_URL_BY_DATA( id_url , id_data , __SUBJECT__ ) , 'w' , compresslevel=9)    
         zFile.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , json.dumps( subjects , indent= 4) ) 
         zFile.close()
-
         DataBaseSubject.update_keys( url , data )
     
     @staticmethod
@@ -68,26 +70,30 @@ class DataBaseSubject:
     def get_keys():
         if os.path.exists( PATHS.INFO(__SUBJECT__) ) == False:
             return dict()
-        with open( PATHS.INFO(__SUBJECT__) , 'r' ) as arq:    
-            out = json.load( arq)
+        with open( PATHS.INFO(__SUBJECT__) , 'r' ) as arq:
+            out = json.loads(arq.read())
         return out
 
     @staticmethod
     def update_keys( url:str , data:str ):
         keys = DataBaseSubject.get_keys()
+        if url not in keys.keys():
+            keys[url] = list()
         if data not in keys[url]:
-            keys[url].append( data )    
+            keys[url].append( data )
+            with open( PATHS.INFO(__SUBJECT__) , 'w') as arq:
+                arq.write( json.dumps( keys ) )
     
     @staticmethod
     def clean_keys():
-        if os.path.exists( PATHS.INFO(__SUBJECT__) ):
+        if os.path.exists( PATHS.INFO_FATHER(__SUBJECT__) ) == False:
             return
         with open( PATHS.INFO(__SUBJECT__) , 'w' ) as arq:    
-            out = json.dump( dict() )
-        return out
+            arq.write( "{}")
+        return arq
             
 def generate_subject( info:dict ):
-    data_base_subject.save_summary( out )
+    data_base_subject = DataBaseSubject()
     data_base_subject.clean_keys()
     for url in info.keys():
         for data in info[url].keys():

@@ -53,7 +53,7 @@ class DataBaseControl:
         url_id = self._find_id_of_url( url , True )
         data_id = self._find_id_of_data_in_url( url , data , True )
         os.makedirs( PATHS.DATA_BY_URL_BY_DATA_FATHER( url_id , data_id ) , exist_ok= True)
-        objZF = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , "w" , compression=zipfile.ZIP_LZMA)
+        objZF = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , "w" , compression=zipfile.ZIP_BZIP2 , compresslevel=9)
         objZF.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , html )
         objZF.close()
 
@@ -85,7 +85,7 @@ class DataBaseControl:
 
         if id_url == -1 or id_data == -1: 
             raise Exception("Erro em encontrar o arqivo (" + id_url + " , " + id_data + ")" )
-        zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) , "r" , compression=zipfile.ZIP_LZMA)
+        zFile = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( id_url , id_data ) , "r" , compression=zipfile.ZIP_BZIP2 , compresslevel=9)
         s = zFile.read( PATHS.IN_ZIP_NAME_FILE_BASIC() )
         zFile.close()    
         return s.decode()
