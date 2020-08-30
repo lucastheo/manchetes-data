@@ -2,9 +2,7 @@
 import sys
 sys.path.append("../libs")
 import lib_driver_controler
-import lib_data_base_control
-
-import requests 
+import lib_data_base_control 
 
 FILE_URL = "../config/url.list"
 

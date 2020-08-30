@@ -4,6 +4,7 @@
 #
 import requests 
 from selenium import webdriver
+from pyvirtualdisplay import Display
 
 class DriverControler:
 
@@ -12,6 +13,8 @@ class DriverControler:
                  }
     def __init__( self ):
         self.driver = None
+        self.display = Display(visible=0, size=(1024, 768))
+        self.display.start()
 
     def get( self, url ):
         if self.driver is None:
@@ -27,4 +30,5 @@ class DriverControler:
         pass
         if self.driver != None:
             self.driver.close()
+            self.display.stop()
     

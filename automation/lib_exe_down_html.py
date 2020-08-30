@@ -1,7 +1,7 @@
 import subprocess
 import os 
 PATH_DOWN_HTML = os.getcwd() + "/../down_html"
-PYTHON = 'python3 '
+PYTHON = 'python3.8 '
 def execute():
     dow_pages_main()
 
