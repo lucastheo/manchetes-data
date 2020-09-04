@@ -18,7 +18,10 @@ class DriverControler:
 
     def get( self, url ):
         if self.driver is None:
-           self.driver = webdriver.Firefox()
+            try:
+                self.driver = webdriver.Firefox()
+            except Exception as e:
+                self.driver = webdriver.Chrome()
         self.driver.get( url )
         
         #var = requests.get( url , headers= self.HEADERS  )
