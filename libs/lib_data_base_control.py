@@ -3,11 +3,16 @@ import json
 import os
 import datetime
 from zipfile import ZipFile 
-FILE_URL_TO_ID = '../htmls/url_to_id'
+import boto3
+BUCKETNAME = 'manchetes'
+
+FILE_URL_TO_ID = 'htmls/url_to_id'
 PATH_BASE = 'htmls/data_base/'
-PATH_ZIP_FILE = "../data/data.zip"
+PATH_ZIP_FILE = "/data/data.zip"
 FILE_BASE_ID_URL = '/info'
 PATH_ZIP_HTML_BASIC = "info"
+
+PATH_TEMP_ZIP = "/tmp/manchetes-python.zip"
 
 class PATHS:
     @staticmethod
@@ -16,28 +21,30 @@ class PATHS:
 
     @staticmethod
     def INFO():
-        return "../data/htmls/key.json"
+        return "data/htmls/key.json"
     
     @staticmethod
     def INFO_BY_URL( url ):
-        return "../data/htmls/__url__/key.json".replace("__url__" , str( url ) )
+        return "data/htmls/__url__/key.json".replace("__url__" , str( url ) )
    
     @staticmethod
     def INFO_BY_URL_FATHER( url ):
-        return "../data/htmls/__url__".replace("__url__" , str( url ) )
+        return "data/htmls/__url__".replace("__url__" , str( url ) )
 
     @staticmethod
     def DATA_BY_URL_BY_DATA( url , data ):
-        return "../data/htmls/__url__/__data__.zip".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
+        return "data/htmls/__url__/__data__.zip".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
     @staticmethod
     def DATA_BY_URL_BY_DATA_FATHER( url , data ):
-        return "../data/htmls/__url__".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
+        return "/data/htmls/__url__".replace("__url__" , str( url ) ).replace( "__data__" , str( data ) )
     
 
 class DataBaseControl:
     @classmethod
     def __init__( self ):
         self.url_to_id_dict = dict()
+        self.s3 = boto3.resource('s3')
+        self.s3_client = boto3.client('s3')
             
     @classmethod
     def contem_no_sistema( self , url ):
@@ -52,10 +59,14 @@ class DataBaseControl:
         
         url_id = self._find_id_of_url( url , True )
         data_id = self._find_id_of_data_in_url( url , data , True )
-        os.makedirs( PATHS.DATA_BY_URL_BY_DATA_FATHER( url_id , data_id ) , exist_ok= True)
-        objZF = zipfile.ZipFile( PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , "w" , compression=zipfile.ZIP_BZIP2 , compresslevel=9)
+        #os.makedirs( PATHS.DATA_BY_URL_BY_DATA_FATHER( url_id , data_id ) , exist_ok= True)
+        PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) 
+        
+        objZF = zipfile.ZipFile( PATH_TEMP_ZIP , "w" , compression=zipfile.ZIP_BZIP2 , compresslevel=9)
         objZF.writestr(PATHS.IN_ZIP_NAME_FILE_BASIC() , html )
         objZF.close()
+
+        self._upload_in_s3(PATHS.DATA_BY_URL_BY_DATA( url_id , data_id ) , PATH_TEMP_ZIP )
 
     @classmethod
     def get_dict_id_url( self ):
@@ -95,11 +106,9 @@ class DataBaseControl:
         id_url = self._find_id_of_url( url , False )
         if id_url == -1: return False
         try:
-            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+            s = self._get_in_s3(PATHS.INFO_BY_URL( id_url )) 
         except: 
             return False
-        s = arq.read()
-        arq.close()
         if len( s ) > 0:
             j = json.loads( s )
             return data in j.keys()
@@ -114,19 +123,13 @@ class DataBaseControl:
     def _find_id_of_data_in_url( self  , url:str , data:str , add:bool )->int:
         id_url = self._find_id_of_url( url , True )
         try:
-            arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+            s = self._get_in_s3(PATHS.INFO_BY_URL( id_url ))
         except Exception as e:
             if add == True:
-                os.makedirs( PATHS.INFO_BY_URL_FATHER( id_url ) , exist_ok=True)
-                arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
-                arq.write( '{}')
-                arq.close()
-                arq = open( PATHS.INFO_BY_URL( id_url ) , 'r' )
+                #os.makedirs( PATHS.INFO_BY_URL_FATHER( id_url ) , exist_ok=True)
+                s = self._save_in_s3(PATHS.INFO_BY_URL( id_url ), '{}')
             else:
-                arq.close()
                 return -1
-        s = arq.read()
-        arq.close()
         
         if len( s ) > 0: j = json.loads( s )
         else:            j = dict()
@@ -136,10 +139,7 @@ class DataBaseControl:
         elif add == False:
             return -1
         j[ data ] = max_valor( j )
-        arq = open( PATHS.INFO_BY_URL( id_url ) , 'w' )
-        arq.write( json.dumps( j ) )
-        arq.close()
-            
+        s = self._save_in_s3(PATHS.INFO_BY_URL( id_url ), json.dumps( j ) )            
         return j[ data ]
 
     @classmethod
@@ -175,42 +175,48 @@ class DataBaseControl:
         j[url] = max_v
         j_out = json.dumps( j , indent=4 )
         
-        arq = open(  PATHS.INFO()  , 'w')
-        arq.write( j_out )
-        arq.close()
+        self._save_in_s3( PATHS.INFO() , j_out )
         
         path_id_url = PATH_BASE + str( max_v )
-        os.makedirs( path_id_url , exist_ok=True )
+        #os.makedirs( path_id_url , exist_ok=True )
         
         # cria o arquivo do detalhe da url
         j = self._get_url_to_id()
         
-        os.makedirs(PATHS.INFO_BY_URL_FATHER( j[url] ) , exist_ok= True )
-        arq = open(  PATHS.INFO_BY_URL( j[url] )  , 'w')
-        arq.write('{}')
-        arq.close()
-        
+        #os.makedirs(PATHS.INFO_BY_URL_FATHER( j[url] ) , exist_ok= True )
+        self._save_in_s3( PATHS.INFO_BY_URL( j[url] ) , '{}')    
         return j
 
     @classmethod
     def _get_url_to_id( self ):
         try:
-            arq = open(  PATHS.INFO()  , 'r')
+            s = self._get_in_s3(PATHS.INFO() )
         except Exception as e:
-            arq = open(  PATHS.INFO()  , 'w')
-            arq.write('{}' )
-            arq.close()
-            arq = open(  PATHS.INFO()  , 'r')
-            print("Criando arquivo de id" , e )
+            s = self._save_in_s3(PATHS.INFO() , '{}')
         
-        s = arq.read()
-        arq.close()
-        
+    
         if len( s.strip() ) > 0:    j = json.loads( s )
         else:                       j = dict()
 
         self.url_to_id_dict = j
         return j
+    
+    @classmethod
+    def _save_in_s3( self,  path , data ):
+        self.s3.Object( BUCKETNAME , path ).put(Body=data)
+        return data
+    
+    @classmethod
+    def _upload_in_s3( self , path , path_file ):
+        self.s3_client.upload_file( Bucket=BUCKETNAME, Key=path , Filename=path_file)
+
+    @classmethod
+    def _get_in_s3( self , path ):
+        return self.s3.Object(BUCKETNAME, path ).get()['Body'].read().decode()
+
+    @classmethod
+    def _create_dir_s3( self , path ):
+        self.s3.Bucket(BUCKETNAME).new_key(path)
 
 def max_valor( var ):
     m = 0
