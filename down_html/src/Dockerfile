@@ -28,7 +28,9 @@ RUN mkdir /root/.aws
 RUN pip install --no-cache-dir boto3 requests
 RUN pip3 --no-cache-dir install --upgrade awscli
 
+#tornado configure
+RUN pip install tornado
 
 WORKDIR /opt
-#EXPOSE 8080
-CMD ["python3" , "down_pages_main.py"]
+EXPOSE 8080
+CMD ["python3" , "main.py"]

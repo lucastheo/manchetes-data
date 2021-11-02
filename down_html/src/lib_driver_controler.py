@@ -4,7 +4,7 @@
 #
 import requests 
 from selenium import webdriver
-from pyvirtualdisplay import Display
+#from pyvirtualdisplay import Display
 
 class DriverControler:
 
@@ -13,13 +13,14 @@ class DriverControler:
                  }
     def __init__( self ):
         self.driver = None
-        self.display = Display(visible=0, size=(1024, 768))
-        self.display.start()
+ #       self.display = Display(visible=0, size=(1024, 768))
+#        self.display.start()
 
     def get( self, url ):
         if self.driver is None:
             #try:
             self.driver = webdriver.Firefox()
+            self.driver.set_page_load_timeout(60)
             #except Exception as e:
             #    print(e)
             #    self.driver = webdriver.Chrome()
@@ -34,5 +35,5 @@ class DriverControler:
         pass
         if self.driver != None:
             self.driver.close()
-            self.display.stop()
+    #        self.display.stop()
     
