@@ -1,9 +1,19 @@
 FROM ubuntu:20.04 AS down_html
-RUN apt-get update && apt-get upgrade && apt-get install -y
+RUN apt-get update && apt-get upgrade && apt-get install -y && apt clean && apt autoclean && apt autoremove
 COPY . /opt
+
+# config crontab
+RUN apt-get install cron
+RUN crontab /opt/crontab
 
 #config python3
 RUN apt-get install python3 -y && apt-get install python3-pip -y
+
+#config firefox
+ENV TZ=America/Sao_Paulo
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN apt-get install -y --no-install-recommends firefox
+
 
 #config pyvirtualdisplay
 RUN apt-get install xvfb xserver-xephyr tigervnc-standalone-server xfonts-base -y
@@ -13,7 +23,7 @@ RUN pip install pillow
 #config firefox
 ENV TZ=America/Sao_Paulo
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-RUN apt-get install -y --no-install-recommends firefox
+RUN apt-get install -y  --fix-missing --no-install-recommends firefox
 
 #config selenium
 RUN pip install --no-cache-dir selenium
@@ -27,9 +37,6 @@ RUN tar -xzf /opt/program/geckodriver-v0.30.0-linux64.tar.gz -C /usr/local/bin g
 RUN mkdir /root/.aws
 RUN pip install --no-cache-dir boto3 requests
 RUN pip3 --no-cache-dir install --upgrade awscli
-
-#tornado configure
-RUN pip install tornado
 
 WORKDIR /opt
 EXPOSE 8080
