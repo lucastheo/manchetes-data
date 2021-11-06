@@ -40,4 +40,4 @@ RUN pip3 --no-cache-dir install --upgrade awscli
 
 WORKDIR /opt
 EXPOSE 8080
-CMD ["python3" , "main.py"]
+CMD ["bash"]
