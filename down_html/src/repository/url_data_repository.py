@@ -20,7 +20,7 @@ class UrlDataRepository:
     def add_code(self,url: str, body: str, error: bool):
         s3_client = self._s3_client()
         key = uuid.uuid4().hex
-        print(key)
+        print("[EXEC ]" + str(key))
         tag = self.generate_tags(key, url, error)
         file = self.generate_file(key, url, body, error)
         file_comress = self.compress(file)

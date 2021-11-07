@@ -5,9 +5,12 @@ COPY . /opt
 # config crontab
 RUN apt-get install cron
 RUN crontab /opt/crontab
+RUN touch /var/log/cron.log
 
 #config python3
 RUN apt-get install python3 -y && apt-get install python3-pip -y
+
+
 
 #config firefox
 ENV TZ=America/Sao_Paulo
@@ -37,6 +40,9 @@ RUN tar -xzf /opt/program/geckodriver-v0.30.0-linux64.tar.gz -C /usr/local/bin g
 RUN mkdir /root/.aws
 RUN pip install --no-cache-dir boto3 requests
 RUN pip3 --no-cache-dir install --upgrade awscli
+
+#mudando a execução do main
+RUN chmod +x /opt/main.py
 
 WORKDIR /opt
 EXPOSE 8080
