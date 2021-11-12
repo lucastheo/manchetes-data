@@ -1,16 +1,8 @@
 FROM ubuntu:20.04 AS down_html
 RUN apt-get update && apt-get upgrade && apt-get install -y && apt clean && apt autoclean && apt autoremove
-COPY . /opt
-
-# config crontab
-RUN apt-get install cron
-RUN crontab /opt/crontab
-RUN touch /var/log/cron.log
 
 #config python3
 RUN apt-get install python3 -y && apt-get install python3-pip -y
-
-
 
 #config firefox
 ENV TZ=America/Sao_Paulo
@@ -41,9 +33,12 @@ RUN mkdir /root/.aws
 RUN pip install --no-cache-dir boto3 requests
 RUN pip3 --no-cache-dir install --upgrade awscli
 
+
+
+COPY . /opt
+
 #mudando a execução do main
 RUN chmod +x /opt/main.py
 
 WORKDIR /opt
-EXPOSE 8080
-CMD ["bash"]
+CMD ["python3" , "main.py"]

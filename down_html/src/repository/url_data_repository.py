@@ -8,9 +8,7 @@ import datetime
 import urllib.parse
 
 class UrlDataRepository:
-    BUCKETNAME = 'manchetes-url-data'
-    PATH_DATA = "{data}"
-    PATH_FILE = PATH_DATA+"/{uuid}"
+    BUCKET_NAME = 'manchetes-url-data'
 
     @classmethod
     def _s3_client(self):
@@ -26,7 +24,7 @@ class UrlDataRepository:
         file_comress = self.compress(file)
 
         s3_client.put_object(
-            Bucket=self.BUCKETNAME,
+            Bucket=self.BUCKET_NAME,
             Key=key,
             Body=file_comress,
             Tagging=tag
