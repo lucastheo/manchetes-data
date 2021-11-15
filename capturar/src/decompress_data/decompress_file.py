@@ -1,4 +1,5 @@
 import lzma
+import json 
 from .repository.download_data_repository import DownLoadDataRepository
 from service.smq.annotation import receive_queue
 
@@ -8,11 +9,11 @@ class DecompressData:
     @classmethod
     def process(cls, obj_key: str):
         data = cls.download_data_repository.get(obj_key)
-        return lzma.decompress(data)
+        return json.loads( lzma.decompress(data).decode() )['body']
 
     @classmethod
     def run(cls, mensagem):
-        mensagem['html'] = cls.process(mensagem['key']).decode()
+        mensagem['html'] = cls.process(mensagem['key'])
         return mensagem
 
 

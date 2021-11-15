@@ -10,17 +10,15 @@ def receive_queue(*args, **kwargs):
                 smq_obj = smq_client.recebe_nao_bloqueante_commit(receive_queue_name)
 
                 if smq_obj.exist():
-                    return_mensage = f(json.loads(smq_obj.mensagem()))
+                    print("[RECV ] Recebeu mensagem", receive_queue_name)
+                    return_mensage = json.dumps(f(json.loads(smq_obj.mensagem())))
                     if return_mensage is not None:
-                        smq_client.envia(return_mensage,send_queue_name)
-                    else:
-                        print("aaaaa")
-
+                        if not smq_client.envia(return_mensage,send_queue_name):
+                            print('[ERRO ] Envio de mensagem falhou, fila:', send_queue_name,'body',return_mensage)
                 else:
-
                     for signal in consumer_exit:
                         if smq_client.recebe_nao_bloqueante_commit(receive_queue_name, signal).exist():
-                            print("[RECV ] Finalizando o processo de receber mensagens")
+                            print("[RECV ] Finalizando o processo de receber mensagens", receive_queue_name)
                             smq_client.envia("EOF", send_queue_name, consumer_exit)
                             return
         return capture_args

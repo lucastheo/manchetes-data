@@ -14,9 +14,9 @@ class DownloadData:
         download_data_repository = DownLoadDataRepository()
         for obj_key in download_data_repository.run():
             if smq_client.envia(cls._generate_dto(obj_key), cls.NAME_QUEUE):
-                print('[SEND ] Enviou mensagem')
+                print('[SEND ] Enviou mensagem', cls.NAME_QUEUE)
             else:
-                print('[SEND ] Erro ao enviar a mensagem')
+                print('[SEND ] Erro ao enviar a mensagem', cls.NAME_QUEUE)
 
         smq_client.envia('EOF', cls.NAME_QUEUE, consumer_exit)
 
