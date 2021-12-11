@@ -1,13 +1,16 @@
 from .repository.download_data_repository import DownLoadDataRepository
 import json
+import uuid
 
-
+# Função inicial do processamento dos dados o qual realiza o controle do 
+# download, nesse controle é feito uma cópia local, assim nas próximas 
+# execuções não é necesssário realizar novamente o download.
 class DownloadData:
     NAME_QUEUE = 'download_data'
 
     @classmethod
     def _generate_dto(cls, obj_key):
-        return json.dumps({'key': obj_key})
+        return json.dumps({'key': obj_key,'id_execucao':uuid.uuid4().hex})
 
     @classmethod
     def run(cls, smq_client,consumer_exit):
