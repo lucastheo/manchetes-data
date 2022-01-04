@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 class SmqCliente:
     __slots__ = ['_url', '_tempo_consumo']
-    time_sleep = 0.001
+    time_sleep = 0.01
 
     def __init__(self, url="http://localhost:8080", tempo_consumo=604800):
         self._url = url
@@ -37,9 +37,12 @@ class SmqCliente:
         return retorno
 
     def recebe_nao_bloqueante(self, nome_fila="padrao", elemento_grupo="padrao"):
-        retorno = self.__recebe(nome_fila, elemento_grupo)
-        if not retorno.exist():
-            time.sleep(self.time_sleep)
+        for i in range(3):
+            retorno = self.__recebe(nome_fila, elemento_grupo)
+            if not retorno.exist():
+                time.sleep(self.time_sleep)
+            else:
+                return retorno
         return retorno
 
     def recebe_bloqueante_commit(self, nome_fila="padrao", elemento_grupo="padrao"):
