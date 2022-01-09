@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS down_html
+FROM ubuntu:20.04 AS baixar_html
 RUN apt-get update && apt-get upgrade && apt-get install -y && apt clean && apt autoclean && apt autoremove
 
 #config python3
