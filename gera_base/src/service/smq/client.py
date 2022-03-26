@@ -6,9 +6,9 @@ from datetime import datetime, timedelta
 
 class SmqCliente:
     __slots__ = ['_url', '_tempo_consumo']
-    time_sleep = 0.01
+    time_sleep = 0.1
 
-    def __init__(self, url="http://localhost:8080", tempo_consumo=604800):
+    def __init__(self, url="http://172.17.0.2:8080", tempo_consumo=604800):
         self._url = url
         self._tempo_consumo = (datetime.now() - timedelta(minutes=tempo_consumo)).isoformat()
 
@@ -22,12 +22,17 @@ class SmqCliente:
     def __envia_(self, path, body):
         count = 5
         while count > 0:
-            result = requests.post(path, json=body)
-            if result.status_code == 500:
-                time.sleep(1)
-                count -= 1
-            else:
-                count = 0
+            try:
+                result = requests.post(path, json=body)
+                if result.status_code == 500:
+                    time.sleep(1)
+                    count -= 1
+                else:
+                    count = 0
+            except:
+                print("SmqCliente: Erro ao enviar a mensagem, estado de espera")
+                time.sleep(10)
+                
         return result
 
     def recebe_bloqueante(self, nome_fila="padrao", elemento_grupo="padrao"):
@@ -68,12 +73,17 @@ class SmqCliente:
     def __recebe_(self, path):
         count = 5
         while count > 0:
-            result = requests.get(path)
-            if result.status_code == 500:
-                time.sleep(1)
-                count -= 1
-            else:
-                count = 0
+            try:
+                result = requests.get(path)
+                if result.status_code == 500:
+                    time.sleep(1)
+                    count -= 1
+                else:
+                    count = 0
+            except:
+                print("SmqCliente: Erro ao receber a mensagem, estado de espera")
+                time.sleep(10)
+                
         return result
 
     def __recebe_status_valido(self, result):
