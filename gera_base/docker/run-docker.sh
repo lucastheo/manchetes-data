@@ -1,1 +1,1 @@
-sudo docker container run --restart=always -t -d -v ~/.aws:/root/.aws gera_base
+sudo docker container run --cpus=1 -t -v ~/.aws:/root/.aws gera_base 
