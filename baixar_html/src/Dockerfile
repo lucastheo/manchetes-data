@@ -1,5 +1,10 @@
 FROM ubuntu:20.04 AS baixar_html
-RUN apt-get update && apt-get upgrade && apt-get install -y && apt clean && apt autoclean && apt autoremove
+RUN apt-get update -y
+RUN apt-get upgrade -y
+RUN apt-get install -y 
+RUN apt clean 
+RUN apt autoclean 
+RUN apt autoremove
 
 #config python3
 RUN apt-get install python3 -y && apt-get install python3-pip -y
@@ -11,7 +16,10 @@ RUN apt-get install -y --no-install-recommends firefox
 
 
 #config pyvirtualdisplay
-RUN apt-get install xvfb xserver-xephyr tigervnc-standalone-server xfonts-base -y
+RUN apt-get install xvfb -y
+RUN apt-get install xserver-xephyr -y
+RUN apt-get install tigervnc-standalone-server -y
+RUN apt-get install xfonts-base -y
 RUN pip install pyvirtualdisplay
 RUN pip install pillow
 
