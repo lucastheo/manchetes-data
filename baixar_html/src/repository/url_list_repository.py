@@ -2,7 +2,7 @@ import boto3
 import json
 
 class UrlListRepository:
-    BUCKETNAME = 'manchetes-url-list'
+    BUCKETNAME = 'manchetes-dados'
     FILE_KEY = "url.list"
     
     def __init__(self) -> None:
