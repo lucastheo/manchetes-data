@@ -1,13 +1,20 @@
 #!/usr/bin/python3
+import sys
+sys.path.append("./repository")
+sys.path.append("./service")
 
 from repository.url_list_repository import UrlListRepository
 from repository.url_data_repository import UrlDataRepository
 from service.download_page_service import DownloadPageService
+from controle_download_service import controle_download_service
+
 import time
 from random import randint
 
 if __name__ == "__main__":
     while True:
+        controle_download_service.espera_momento_download()
+
         url_list_repository = UrlListRepository()
         url_data_repository = UrlDataRepository()
         download_page_service = DownloadPageService()
